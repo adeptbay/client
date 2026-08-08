@@ -1,0 +1,209 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AdeptBay — design tokens
+   Appendix A · Step 02 items 9–10 (brand palette, typography)
+
+   Two layers, on purpose:
+
+   1. RAW RAMPS (`@theme`)  — the physical colours. Components must never
+      reference these directly. They exist so the semantic layer has a
+      vocabulary to point at.
+
+   2. SEMANTIC TOKENS (`:root` / `[data-theme="dark"]` + `@theme inline`)
+      — the roles. `bg-panel`, `text-fg-muted`, `border-line`. These are
+      the ONLY colour utilities allowed in components.
+
+   Why: 1000+ tool pages cannot be re-themed by hand. One role swap here
+   restyles every page, and dark mode needs zero `dark:` variants in JSX.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  /* ── Brand: "Bay" teal ─────────────────────────────────────────────
+     Chosen against the field: iLovePDF / Smallpdf / TinyPNG own red,
+     it-tools / 10015 / most dev-tool sites own indigo. Deep teal reads
+     as infrastructure + trust, is unclaimed in this category, and ties
+     to the name (a bay is sheltered water — "your files stay here"). */
+  --color-brand-50: #eefbf8;
+  --color-brand-100: #d2f5ee;
+  --color-brand-200: #a6eadd;
+  --color-brand-300: #6fd8c7;
+  --color-brand-400: #38bdab;
+  --color-brand-500: #16a18f;
+  --color-brand-600: #0f8274;
+  --color-brand-700: #0f6961;
+  --color-brand-800: #11544f;
+  --color-brand-900: #124542;
+  --color-brand-950: #052b29;
+
+  /* ── Neutral: cool ink, faintly green-shifted to sit under brand ── */
+  --color-ink-50: #f7f9f9;
+  --color-ink-100: #edf1f1;
+  --color-ink-200: #dce3e4;
+  --color-ink-300: #bfcacc;
+  --color-ink-400: #94a4a7;
+  --color-ink-500: #6c7c80;
+  --color-ink-600: #536265;
+  --color-ink-700: #414f52;
+  --color-ink-800: #2b383b;
+  --color-ink-900: #1a2427;
+  --color-ink-950: #0d1416;
+
+  /* ── Signal colours (used sparingly — never decoratively) ───────── */
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #b45309;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #e11d48;
+  --color-rose-600: #be123c;
+
+  /* ── Typography ──────────────────────────────────────────────────
+     Exactly two families (Step 02 item 10). Inter for UI — the most
+     legible free grotesque at the 13–15px sizes tool UIs live at.
+     JetBrains Mono for every byte of user data: unambiguous 0/O, 1/l/I,
+     which matters when someone is reading a hash or a JWT. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-brand), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Shape ───────────────────────────────────────────────────────── */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  /* ── Motion (respect prefers-reduced-motion; see base layer) ────── */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEMANTIC LAYER — light
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: light;
+
+  --surface: #ffffff;
+  --panel: #ffffff;
+  --sunken: #f7f9f9;
+  --raised: #ffffff;
+
+  --line: #dce3e4;
+  --line-strong: #bfcacc;
+
+  --fg: #101a1c;
+  --fg-muted: #536265;
+  --fg-subtle: #6c7c80;
+  --fg-onbrand: #ffffff;
+
+  /* brand-600 on white = 4.71:1 — passes AA for the white label on buttons */
+  --brand: #0f8274;
+  --brand-hover: #0f6961;
+  --brand-active: #11544f;
+  /* brand-700 on white = 6.53:1 — link + inline text weight */
+  --brand-text: #0f6961;
+  --brand-soft: #eefbf8;
+  --brand-line: #a6eadd;
+
+  --warn: #b45309;
+  --warn-soft: #fffbeb;
+  --warn-line: #fde68a;
+
+  --danger: #be123c;
+  --danger-soft: #fff1f2;
+  --danger-line: #fecdd3;
+
+  --ok: #0f6961;
+  --ok-soft: #eefbf8;
+
+  --ring: #16a18f;
+
+  --shadow-panel: 0 1px 2px rgb(13 20 22 / 0.04), 0 1px 3px rgb(13 20 22 / 0.06);
+  --shadow-pop: 0 4px 6px -2px rgb(13 20 22 / 0.05), 0 12px 28px -8px rgb(13 20 22 / 0.14);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SEMANTIC LAYER — dark
+   Not an inversion. Brand flips from a dark fill with light text to a
+   light fill with dark text, because a mid-teal cannot carry white text
+   at AA on a dark ground.  brand-400 on brand-950 = 6.53:1.
+   ═══════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface: #0d1416;
+  --panel: #141f22;
+  --sunken: #101a1c;
+  --raised: #1a2427;
+
+  --line: #243134;
+  --line-strong: #35464a;
+
+  --fg: #eef3f3;
+  --fg-muted: #a7b6b9;
+  --fg-subtle: #849699;
+  --fg-onbrand: #052b29;
+
+  --brand: #38bdab;
+  --brand-hover: #6fd8c7;
+  --brand-active: #a6eadd;
+  --brand-text: #6fd8c7;
+  --brand-soft: #0f2b2a;
+  --brand-line: #17423e;
+
+  --warn: #fbbf24;
+  --warn-soft: #291f0c;
+  --warn-line: #4a3714;
+
+  --danger: #fb7185;
+  --danger-soft: #2c1319;
+  --danger-line: #4d2029;
+
+  --ok: #38bdab;
+  --ok-soft: #0f2b2a;
+
+  --ring: #38bdab;
+
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.4), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 4px 6px -2px rgb(0 0 0 / 0.4), 0 12px 28px -8px rgb(0 0 0 / 0.6);
+}
+
+/* Expose the semantic roles as Tailwind utilities.
+   `inline` keeps them as var() references so a runtime theme swap works. */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-sunken: var(--sunken);
+  --color-raised: var(--raised);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-onbrand: var(--fg-onbrand);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-text: var(--brand-text);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
+
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-line: var(--danger-line);
+
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+
+  --color-ring: var(--ring);
+
+  --shadow-panel: var(--shadow-panel);
+  --shadow-pop: var(--shadow-pop);
+}

@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "../config/theme.css";
+
+/* Paths are relative to this file, so "../" is src/ — every directory
+   that can contain a class name, and nothing that cannot. */
+@source "../app";
+@source "../ui";
+@source "../tools";
+@source "../content";
+
+/* ═══════════════════════════════════════════════════════════════════
+   Base layer
+   Deliberately small. Every rule here has to earn its place across
+   1000+ pages — anything cosmetic belongs in a component.
+   ═══════════════════════════════════════════════════════════════════ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* The sticky header is 4rem; anchored FAQ/section links must clear it. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: "opsz" 32;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* One focus treatment for the whole platform. Keyboard users get a
+     visible ring; pointer users never see it. Accessibility statement
+     (Step 06 item 22) commits us to this. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background-color: var(--brand-line);
+    color: var(--fg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.018em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Native controls should not look alien in dark mode. */
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Note: `field-sizing: content` is deliberately NOT set here. It makes
+     an empty textarea collapse to a single row, which destroys the
+     "the tool is usable the moment the page loads" promise — the input
+     box has to look like somewhere you can paste 500 lines. `rows`
+     governs the initial height instead. */
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Components — only patterns repeated on every one of 1000 pages.
+   ═══════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* Scrollbars inside tool panels; the default Windows bar is 17px of
+     grey that wrecks a dark UI. */
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .scroll-slim::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroll-slim::-webkit-scrollbar-thumb {
+    background-color: var(--line-strong);
+    border-radius: 9999px;
+    border: 3px solid var(--panel);
+  }
+
+  /* Long-form article body. Applied to guides, blog and policy pages so
+     content authors write plain markup and get correct rhythm free. */
+  .prose-bay {
+    color: var(--fg-muted);
+    line-height: 1.75;
+    font-size: 0.9375rem;
+  }
+  .prose-bay > * + * {
+    margin-top: 1.1em;
+  }
+  .prose-bay h2 {
+    color: var(--fg);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2.25em;
+    margin-bottom: 0.6em;
+    scroll-margin-top: 5rem;
+  }
+  .prose-bay h3 {
+    color: var(--fg);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 1.8em;
+    margin-bottom: 0.5em;
+    scroll-margin-top: 5rem;
+  }
+  .prose-bay strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .prose-bay a {
+    color: var(--brand-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .prose-bay ul,
+  .prose-bay ol {
+    padding-left: 1.25rem;
+  }
+  .prose-bay ul {
+    list-style: disc;
+  }
+  .prose-bay ol {
+    list-style: decimal;
+  }
+  .prose-bay li + li {
+    margin-top: 0.4em;
+  }
+  .prose-bay code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    padding: 0.1em 0.35em;
+  }
+  .prose-bay table {
+    width: 100%;
+    font-size: 0.875rem;
+    border-collapse: collapse;
+  }
+  .prose-bay th,
+  .prose-bay td {
+    border: 1px solid var(--line);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+  }
+  .prose-bay th {
+    background: var(--sunken);
+    color: var(--fg);
+    font-weight: 600;
+  }
+}
