@@ -231,7 +231,37 @@ thresholds have been reached.
 
 ---
 
-## 10. Known limits
+## 10. Two CSS traps that have already bitten this codebase
+
+Both were real bugs, both are fixed, and both will recur if someone
+"simplifies" the fix. Worth knowing before touching layout code.
+
+### `backdrop-filter` creates a containing block for `position: fixed`
+
+The site header is `sticky top-0 z-40 backdrop-blur-md`. Any element with
+`backdrop-filter` (also `transform`, `filter`, `perspective`, `contain` or
+`will-change`) becomes the **containing block for fixed-position descendants**.
+
+The command palette originally rendered its overlay in place, inside the
+header. `fixed inset-0` therefore resolved to the header's 64px box rather
+than the viewport: the modal floated over an undimmed page with only the
+header strip darkened. The header's `z-40` compounded it by trapping the
+`z-50` overlay in a stacking context it could not escape.
+
+**Fix:** `ToolSearch` renders the dialog through `createPortal` into
+`document.body`. Any future modal, drawer or popover triggered from inside the
+header must do the same.
+
+### `field-sizing: content` collapses an empty textarea
+
+Setting it globally on `textarea` made every empty tool input render one row
+tall, which destroys the "the tool is usable the moment the page loads"
+promise — the input has to look like somewhere you can paste 500 lines. The
+base layer now leaves it unset and `rows` governs the initial height.
+
+---
+
+## 11. Known limits
 
 Honest list, so nobody discovers these the hard way:
 
