@@ -266,6 +266,112 @@ function secureIndex(bound: number): number {
   return Math.floor(Math.random() * bound);
 }
 
+/* ── Reversal ───────────────────────────────────────────────────────
+   The naive `[...s].reverse().join('')` is wrong for most of Unicode.
+   Spreading a string splits it into code points, which breaks any
+   character built from more than one: a family emoji is seven code
+   points joined by U+200D, and reversing them produces a different set
+   of people. `é` written as e + combining acute moves its accent onto
+   the previous letter.
+
+   Intl.Segmenter with granularity 'grapheme' splits on what a reader
+   would call a character, which is the only correct unit here.        */
+
+export function graphemes(input: string): string[] {
+  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+    const seg = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+    return [...seg.segment(input)].map((s) => s.segment);
+  }
+  return [...input];
+}
+
+export type ReverseMode =
+  | 'characters'
+  | 'words'
+  | 'lines'
+  | 'words-in-line'
+  | 'characters-in-word';
+
+export function reverseText(input: string, mode: ReverseMode): string {
+  switch (mode) {
+    case 'characters':
+      return graphemes(input).reverse().join('');
+
+    case 'words':
+      // Preserve the original separators by splitting on a captured group.
+      return input.split(/(\s+)/).filter((p) => p !== '').reverse().join('');
+
+    case 'lines':
+      return splitLines(input).reverse().join('\n');
+
+    case 'words-in-line':
+      return splitLines(input)
+        .map((line) => line.split(/(\s+)/).filter((p) => p !== '').reverse().join(''))
+        .join('\n');
+
+    case 'characters-in-word':
+      return input.replace(/\S+/g, (word) => graphemes(word).reverse().join(''));
+  }
+}
+
+/** What a code-point reversal would have produced. Used to show the difference. */
+export const naiveReverse = (input: string): string => [...input].reverse().join('');
+
+/* ── Line numbering ─────────────────────────────────────────────── */
+
+export interface NumberingOptions {
+  start: number;
+  step: number;
+  /** Zero-pad numbers so the text stays aligned. 0 = auto-detect width. */
+  padTo: number;
+  separator: string;
+  /** Do not number blank lines (they still appear, unnumbered). */
+  skipBlank: boolean;
+}
+
+export function numberLines(input: string, o: NumberingOptions): string {
+  const lines = splitLines(input);
+
+  const counted = o.skipBlank ? lines.filter((l) => l.trim() !== '').length : lines.length;
+  const largest = o.start + Math.max(0, counted - 1) * o.step;
+  const width = o.padTo > 0 ? o.padTo : String(largest).length;
+
+  let n = o.start;
+  return lines
+    .map((line) => {
+      if (o.skipBlank && line.trim() === '') return line;
+      const label = String(n).padStart(width, '0');
+      n += o.step;
+      return `${label}${o.separator}${line}`;
+    })
+    .join('\n');
+}
+
+/**
+ * Strip leading line numbers.
+ *
+ * The reverse operation, which almost no competitor offers — and it is
+ * the one you need after copying a numbered block out of a code sample,
+ * a log viewer or a PDF.
+ */
+export function stripLineNumbers(input: string): { text: string; removed: number } {
+  let removed = 0;
+
+  const text = splitLines(input)
+    .map((line) => {
+      // Leading whitespace, digits, then one of the usual separators.
+      const match = line.match(/^\s*\d+\s*(?:[.):|\]]|\s-\s|\t| {2,})\s?/);
+      if (match) {
+        removed++;
+        return line.slice(match[0].length);
+      }
+      return line;
+    })
+    .join('\n');
+
+  return { text, removed };
+}
+
 /* ── Slugs ──────────────────────────────────────────────────────── */
 
 export interface SlugOptions {

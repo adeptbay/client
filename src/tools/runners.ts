@@ -24,10 +24,18 @@ export const runners: Record<string, Runner> = {
   'word-counter': () => import('./text/word-counter'),
   'case-converter': () => import('./text/case-converter'),
   'remove-duplicate-lines': () => import('./text/remove-duplicate-lines'),
+  'remove-extra-spaces': () => import('./text/remove-extra-spaces'),
   'sort-lines': () => import('./text/sort-lines'),
   'text-diff': () => import('./text/text-diff'),
+  'find-and-replace': () => import('./text/find-and-replace'),
   'slug-generator': () => import('./text/slug-generator'),
   'readability-checker': () => import('./text/readability-checker'),
+  'character-frequency-counter': () => import('./text/character-frequency-counter'),
+  'line-numberer': () => import('./text/line-numberer'),
+  'lorem-ipsum-generator': () => import('./text/lorem-ipsum-generator'),
+  'text-reverser': () => import('./text/text-reverser'),
+  'text-to-columns': () => import('./text/text-to-columns'),
+  'text-encryptor': () => import('./text/text-encryptor'),
 
   // developer
   'json-formatter': () => import('./developer/json-formatter'),

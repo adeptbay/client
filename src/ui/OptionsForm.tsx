@@ -17,7 +17,7 @@
 
 import { useId } from 'react';
 import type { OptionValue, ToolOption } from '@core/tool';
-import { Field, Input, Select, Slider, Switch, cx } from './primitives';
+import { Field, Input, Select, Slider, Switch, Textarea, cx } from './primitives';
 
 export type OptionValues = Record<string, OptionValue>;
 
@@ -153,8 +153,34 @@ export function OptionsForm({
                     placeholder={option.placeholder}
                     maxLength={option.maxLength}
                     spellCheck={false}
+                    autoCapitalize="off"
+                    autoCorrect="off"
                     aria-describedby={option.help ? `${id}-help` : undefined}
                     onChange={(e) => set(option.key, e.target.value)}
+                  />
+                </Field>
+              );
+
+            case 'textarea':
+              return (
+                <Field
+                  key={option.key}
+                  label={option.label}
+                  htmlFor={id}
+                  help={option.help}
+                  className={option.wide ? 'sm:col-span-full' : undefined}
+                >
+                  <Textarea
+                    id={id}
+                    rows={option.rows ?? 4}
+                    value={String(values[option.key] ?? option.default)}
+                    placeholder={option.placeholder}
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    aria-describedby={option.help ? `${id}-help` : undefined}
+                    onChange={(e) => set(option.key, e.target.value)}
+                    className={option.mono !== false ? 'font-mono text-[13px]' : undefined}
                   />
                 </Field>
               );
@@ -211,6 +237,11 @@ export function optionsFromQuery(options: ToolOption[], search: string): OptionV
       }
       case 'text':
         out[o.key] = o.maxLength ? raw.slice(0, o.maxLength) : raw;
+        break;
+      case 'textarea':
+        // Bounded: a query string is not a place to carry a document, and
+        // an unbounded one is a cheap way to blow up a URL.
+        out[o.key] = raw.slice(0, 2000);
         break;
     }
   }

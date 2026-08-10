@@ -36,6 +36,16 @@ interface OptionBase {
 
 export type ToolOption =
   | (OptionBase & { type: 'text'; default: string; placeholder?: string; maxLength?: number })
+  /** Multi-line option — rule lists, templates, a second body of text. */
+  | (OptionBase & {
+      type: 'textarea';
+      default: string;
+      placeholder?: string;
+      rows?: number;
+      mono?: boolean;
+      /** Span the full width of the options grid. */
+      wide?: boolean;
+    })
   | (OptionBase & { type: 'number'; default: number; min?: number; max?: number; step?: number })
   | (OptionBase & { type: 'range'; default: number; min: number; max: number; step?: number; unit?: string })
   | (OptionBase & { type: 'bool'; default: boolean })
@@ -65,6 +75,7 @@ export type ToolInputSpec =
 export type ToolOutputSpec =
   | { type: 'text'; mono?: boolean; language?: string; label?: string }
   | { type: 'stats'; label?: string }
+  | { type: 'table'; label?: string }
   | { type: 'diff'; label?: string }
   | { type: 'file'; ext: string; label?: string };
 
@@ -86,6 +97,17 @@ export interface DiffLine {
   rightNo?: number;
 }
 
+export interface ResultTable {
+  caption?: string;
+  head: string[];
+  rows: (string | number)[][];
+  /**
+   * Column index to render as a proportional bar, 0–1. Turns a frequency
+   * list into something scannable instead of a wall of numbers.
+   */
+  barColumn?: number;
+}
+
 export interface ToolRunResult {
   /** Primary textual result. Rendered in ResultBox, copyable, downloadable. */
   output?: string;
@@ -95,6 +117,8 @@ export interface ToolRunResult {
   stats?: StatItem[];
   /** Line-level comparison, rendered by DiffViewer. */
   diff?: DiffLine[];
+  /** Tabular result — frequencies, parsed columns, detected characters. */
+  table?: ResultTable;
   /** Short neutral remarks — "3 lines were empty and were skipped". */
   notes?: string[];
 }
@@ -202,6 +226,17 @@ export interface ToolDefinition<TInput = string, TOptions = Record<string, Optio
   input: ToolInputSpec;
   options: ToolOption[];
   output: ToolOutputSpec;
+
+  /**
+   * Wait for an explicit click instead of running as the user types.
+   *
+   * Set it when a run is expensive enough that debounced auto-run would
+   * hurt — the encryptor's 600,000-round key derivation costs ~400 ms,
+   * and doing that per keystroke would peg a core and wreck INP.
+   */
+  manualRun?: boolean;
+  /** Label for the manual run button. Defaults to the tool name. */
+  runLabel?: string;
 
   howTo: ToolHowToStep[];
   faq: ToolFaq[];

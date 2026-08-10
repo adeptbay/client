@@ -9,7 +9,7 @@
  */
 
 import type { ReactNode } from 'react';
-import type { DiffLine, StatItem } from '@core/tool';
+import type { DiffLine, ResultTable, StatItem } from '@core/tool';
 import { cx } from './primitives';
 import { CopyButton, DownloadButton, ShareButton } from './Actions';
 
@@ -117,6 +117,79 @@ export function StatGrid({ stats }: { stats: StatItem[] }) {
           ))}
         </dl>
       )}
+    </div>
+  );
+}
+
+/**
+ * Tabular results — frequency lists, parsed columns, detected characters.
+ *
+ * `barColumn` renders one numeric column as a proportional bar scaled to
+ * the largest value in that column. A frequency list is unreadable as
+ * bare numbers and obvious as bars, and it costs one div.
+ */
+export function ResultTableView({ table }: { table: ResultTable }) {
+  const max =
+    table.barColumn === undefined
+      ? 0
+      : table.rows.reduce((m, row) => Math.max(m, Number(row[table.barColumn!]) || 0), 0);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-line bg-panel">
+      {table.caption && (
+        <div className="border-b border-line bg-sunken px-3 py-2 text-[13px] font-medium text-fg">
+          {table.caption}
+          <span className="ml-2 font-mono text-[11px] font-normal text-fg-subtle">
+            {table.rows.length} rows
+          </span>
+        </div>
+      )}
+
+      <div className="scroll-slim max-h-[28rem] overflow-auto">
+        <table className="w-full border-collapse text-[13px]">
+          <thead className="sticky top-0 z-10">
+            <tr>
+              {table.head.map((h) => (
+                <th
+                  key={h}
+                  scope="col"
+                  className="border-b border-line bg-panel px-3 py-2 text-left font-semibold text-fg"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.map((row, i) => (
+              <tr key={i} className="border-b border-line last:border-0">
+                {row.map((cell, j) => (
+                  <td
+                    key={j}
+                    className={cx(
+                      'px-3 py-1.5 align-middle',
+                      typeof cell === 'number' ? 'font-mono tabular-nums text-fg' : 'text-fg-muted',
+                    )}
+                  >
+                    {j === table.barColumn && max > 0 ? (
+                      <span className="flex items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="h-1.5 rounded-full bg-brand"
+                          style={{ width: `${Math.max(2, (Number(cell) / max) * 100)}%`, minWidth: '2px' }}
+                        />
+                        <span className="shrink-0 font-mono tabular-nums">{cell}</span>
+                      </span>
+                    ) : (
+                      cell
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

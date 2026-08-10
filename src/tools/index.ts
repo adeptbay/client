@@ -15,11 +15,19 @@ import type { ToolDefinition } from '@core/tool';
 
 // ── text ──────────────────────────────────────────────────────────
 import caseConverter from './text/case-converter';
+import characterFrequencyCounter from './text/character-frequency-counter';
+import findAndReplace from './text/find-and-replace';
+import lineNumberer from './text/line-numberer';
+import loremIpsumGenerator from './text/lorem-ipsum-generator';
 import readabilityChecker from './text/readability-checker';
 import removeDuplicateLines from './text/remove-duplicate-lines';
+import removeExtraSpaces from './text/remove-extra-spaces';
 import slugGenerator from './text/slug-generator';
 import sortLines from './text/sort-lines';
 import textDiff from './text/text-diff';
+import textEncryptor from './text/text-encryptor';
+import textReverser from './text/text-reverser';
+import textToColumns from './text/text-to-columns';
 import wordCounter from './text/word-counter';
 
 // ── developer ─────────────────────────────────────────────────────
@@ -40,10 +48,18 @@ export const allTools: ToolDefinition<never, never>[] = [
   wordCounter,
   caseConverter,
   removeDuplicateLines,
+  removeExtraSpaces,
   sortLines,
   textDiff,
+  findAndReplace,
   slugGenerator,
   readabilityChecker,
+  characterFrequencyCounter,
+  lineNumberer,
+  loremIpsumGenerator,
+  textReverser,
+  textToColumns,
+  textEncryptor,
 
   // developer
   jsonFormatter,

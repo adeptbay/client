@@ -129,7 +129,15 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['base64-encoder', 'url-encoder', 'uuid-generator', 'text-diff', 'hash-generator', 'word-counter'],
+  related: [
+    'base64-encoder',
+    'url-encoder',
+    'uuid-generator',
+    'text-diff',
+    'hash-generator',
+    'word-counter',
+    'text-to-columns',
+  ],
   nextSteps: ['text-diff', 'base64-encoder', 'hash-generator'],
 
   added: '2026-08-08',

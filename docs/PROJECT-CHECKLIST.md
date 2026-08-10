@@ -127,22 +127,22 @@ links · index verification.
 - [x] 1. Word Counter
 - [x] 2. Case Converter
 - [x] 3. Remove Duplicate Lines
-- [ ] 4. Remove Extra Spaces
+- [x] 4. Remove Extra Spaces
 - [x] 5. Text Diff
-- [ ] 6. Lorem Ipsum Generator
+- [x] 6. Lorem Ipsum Generator
 - [x] 7. Slug Generator
-- [ ] 8. Find & Replace
+- [x] 8. Find & Replace
 - [x] 9. Sort Lines
-- [ ] 10. Text Reverser
-- [ ] 11. Line Numberer
-- [ ] 12. Text to Columns
-- [ ] 13. Character Frequency Counter
+- [x] 10. Text Reverser
+- [x] 11. Line Numberer
+- [x] 12. Text to Columns
+- [x] 13. Character Frequency Counter
 - [x] 14. Readability Checker
-- [ ] 15. Text Encryptor
+- [x] 15. Text Encryptor
 
 **Also live, ahead of schedule:** JSON Formatter, Base64 Encode/Decode, URL
 Encode/Decode, UUID Generator, Password Generator, Hash Generator, Percentage
-Calculator. **14 live in total.**
+Calculator. **22 live in total — stage 05 is complete.**
 
 ## Stage 06 · Content system — 22 items
 

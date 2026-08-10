@@ -126,6 +126,8 @@ export default defineTool<string, Options>({
     'sort-lines',
     'remove-duplicate-lines',
     'percentage-calculator',
+    'character-frequency-counter',
+    'lorem-ipsum-generator',
   ],
   nextSteps: ['word-counter', 'case-converter', 'text-diff'],
 

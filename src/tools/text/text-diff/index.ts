@@ -88,9 +88,17 @@ export default defineTool<[string, string], Options>({
     summary:
       'Comparison uses a longest-common-subsequence diff, the same approach as git, so a line inserted near the top does not mark every line after it as changed. Identical prefixes and suffixes are trimmed first, which is what keeps large files fast: two 20,000-line files differing in ten places skip more than 99% of the work.',
     benchmarks: [
-      { label: '500 lines vs 500 lines', value: '~8 ms' },
-      { label: '5,000 vs 5,000, 20 edits', value: '~25 ms', note: 'prefix/suffix trimming does most of the work' },
-      { label: '5,000 vs 5,000, fully different', value: '~1.4 s', note: 'the genuine worst case' },
+      { label: '500 vs 500 lines, 2 edits', value: '1.6 ms', note: 'i5-6300U, Chrome 151, median of 8' },
+      {
+        label: '5,000 vs 5,000, 20 edits',
+        value: '1.0 ms',
+        note: 'faster than the 500-line case — trimming the identical prefix and suffix skips almost the whole table',
+      },
+      {
+        label: '2,000 vs 2,000, fully different',
+        value: '43.6 ms',
+        note: 'the genuine worst case, where nothing can be trimmed',
+      },
     ],
     supports: [
       'Line-level additions and deletions with original line numbers',
@@ -106,7 +114,16 @@ export default defineTool<[string, string], Options>({
     verified: '2026-08',
   },
 
-  related: ['remove-duplicate-lines', 'sort-lines', 'word-counter', 'case-converter', 'json-formatter', 'readability-checker'],
+  related: [
+    'remove-duplicate-lines',
+    'sort-lines',
+    'word-counter',
+    'case-converter',
+    'json-formatter',
+    'readability-checker',
+    'find-and-replace',
+    'remove-extra-spaces',
+  ],
   nextSteps: ['remove-duplicate-lines', 'word-counter', 'json-formatter'],
 
   added: '2026-08-08',

@@ -125,7 +125,16 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['case-converter', 'word-counter', 'sort-lines', 'remove-duplicate-lines', 'url-encoder', 'readability-checker'],
+  related: [
+    'case-converter',
+    'word-counter',
+    'sort-lines',
+    'remove-duplicate-lines',
+    'url-encoder',
+    'readability-checker',
+    'lorem-ipsum-generator',
+    'text-reverser',
+  ],
   nextSteps: ['case-converter', 'url-encoder', 'word-counter'],
 
   added: '2026-08-08',

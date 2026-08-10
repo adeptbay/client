@@ -20,7 +20,7 @@ import { runners } from '@tools/runners';
 import { Button, Spinner } from './primitives';
 import { ErrorPanel } from './Feedback';
 import { ResetButton, ShareButton } from './Actions';
-import { DiffViewer, ResultBox, StatGrid } from './Result';
+import { DiffViewer, ResultBox, ResultTableView, StatGrid } from './Result';
 import { FileDropzone, MonospaceTextArea, MultiFileList, type DroppedFile } from './Inputs';
 import {
   OptionsForm,
@@ -46,9 +46,13 @@ export function ToolRunner({ tool }: { tool: ToolMeta }) {
   // Guards against an older, slower run overwriting a newer result.
   const runToken = useRef(0);
 
-  /** Text and form tools run as you type. File tools wait for a click —
-   *  re-encoding a 40 MB image on every keystroke would be hostile. */
-  const auto = tool.input.type !== 'files';
+  /**
+   * Text and form tools run as you type. File tools wait for a click —
+   * re-encoding a 40 MB image on every keystroke would be hostile — and
+   * so do tools that opt out with `manualRun` because a single run is
+   * expensive (see the encryptor's key derivation).
+   */
+  const auto = tool.input.type !== 'files' && !tool.manualRun;
 
   /* ── URL state ───────────────────────────────────────────────────
      Restore options from the query string on mount, then keep the URL
@@ -260,10 +264,21 @@ export function ToolRunner({ tool }: { tool: ToolMeta }) {
         {tool.input.type === 'form' && (
           <Button variant="primary" size="lg" onClick={() => void execute()} disabled={state.status === 'running'}>
             {state.status === 'running' && <Spinner />}
-            Generate
+            {tool.runLabel ?? 'Generate'}
           </Button>
         )}
-        {tool.input.type === 'text' && state.status === 'running' && (
+        {tool.manualRun && tool.input.type !== 'form' && tool.input.type !== 'files' && (
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => void execute()}
+            disabled={state.status === 'running' || (tool.input.type === 'text' && text.trim() === '')}
+          >
+            {state.status === 'running' && <Spinner />}
+            {state.status === 'running' ? 'Working…' : (tool.runLabel ?? tool.name)}
+          </Button>
+        )}
+        {auto && tool.input.type === 'text' && state.status === 'running' && (
           <span className="flex items-center gap-2 text-[13px] text-fg-subtle">
             <Spinner /> Working…
           </span>
@@ -281,13 +296,17 @@ export function ToolRunner({ tool }: { tool: ToolMeta }) {
 
       {stats.length > 0 && <StatGrid stats={stats} />}
 
+      {result?.table && result.table.rows.length > 0 && <ResultTableView table={result.table} />}
+
       {diff.length > 0 && <DiffViewer rows={diff} />}
 
       {/* Stats and diff tools have no ResultBox to hold the empty state,
           so without this the page looks like it is missing its output
           area until the first keystroke. */}
       {state.status === 'idle' &&
-        (tool.output.type === 'stats' || tool.output.type === 'diff') && (
+        (tool.output.type === 'stats' ||
+          tool.output.type === 'diff' ||
+          tool.output.type === 'table') && (
           <div className="rounded-xl border border-dashed border-line bg-panel px-4 py-10 text-center">
             <p className="text-sm text-fg-subtle">
               {tool.input.type === 'form'

@@ -57,7 +57,11 @@ export async function readTools() {
       const path = join(toolsDir, category, slug, 'index.ts');
       let source;
       try {
-        source = await readFile(path, 'utf8');
+        // Normalise line endings before matching. A CRLF file would
+        // silently fail every `\n`-anchored pattern below and report
+        // the tool as empty rather than as unreadable — which is the
+        // worst kind of wrong answer for an audit to give.
+        source = (await readFile(path, 'utf8')).replace(/\r\n/g, '\n');
       } catch {
         tools.push({ slug, category, unreadable: true });
         continue;

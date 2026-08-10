@@ -120,7 +120,16 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['remove-duplicate-lines', 'text-diff', 'case-converter', 'word-counter', 'slug-generator', 'readability-checker'],
+  related: [
+    'remove-duplicate-lines',
+    'text-diff',
+    'case-converter',
+    'word-counter',
+    'slug-generator',
+    'readability-checker',
+    'line-numberer',
+    'text-to-columns',
+  ],
   nextSteps: ['remove-duplicate-lines', 'text-diff', 'case-converter'],
 
   added: '2026-08-08',

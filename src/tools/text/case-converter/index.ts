@@ -118,7 +118,16 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['slug-generator', 'word-counter', 'sort-lines', 'remove-duplicate-lines', 'readability-checker', 'text-diff'],
+  related: [
+    'slug-generator',
+    'word-counter',
+    'sort-lines',
+    'remove-duplicate-lines',
+    'readability-checker',
+    'text-diff',
+    'text-reverser',
+    'lorem-ipsum-generator',
+  ],
   nextSteps: ['slug-generator', 'word-counter', 'sort-lines'],
 
   added: '2026-08-08',

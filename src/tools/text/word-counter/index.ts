@@ -92,8 +92,8 @@ export default defineTool<string, Options>({
     summary:
       'Most online word counters split text on whitespace. That is correct for English and wrong for roughly half the world: a 40-character Chinese sentence has no spaces and gets reported as one word. This tool uses Intl.Segmenter, the browser\'s own Unicode word-boundary implementation, so the count is right in every script.',
     benchmarks: [
-      { label: '10,000 words', value: '~4 ms', note: 'Chrome 141, M2 MacBook Air' },
-      { label: '200,000 words', value: '~70 ms', note: 'still below one typing interval' },
+      { label: '10,000 words', value: '7.4 ms', note: 'i5-6300U, Chrome 151, median of 8' },
+      { label: '200,000 words', value: '186 ms', note: 'a 300-page book, still under a fifth of a second' },
     ],
     table: {
       caption: 'Where the naive whitespace split gets it wrong',
@@ -130,6 +130,8 @@ export default defineTool<string, Options>({
     'slug-generator',
     'text-diff',
     'percentage-calculator',
+    'character-frequency-counter',
+    'remove-extra-spaces',
   ],
   nextSteps: ['readability-checker', 'case-converter', 'text-diff'],
 

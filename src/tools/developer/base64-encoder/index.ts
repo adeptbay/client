@@ -115,7 +115,15 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['url-encoder', 'json-formatter', 'hash-generator', 'uuid-generator', 'password-generator', 'text-diff'],
+  related: [
+    'url-encoder',
+    'json-formatter',
+    'hash-generator',
+    'uuid-generator',
+    'password-generator',
+    'text-diff',
+    'text-encryptor',
+  ],
   nextSteps: ['url-encoder', 'hash-generator', 'json-formatter'],
 
   added: '2026-08-08',

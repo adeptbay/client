@@ -115,9 +115,9 @@ export default defineTool<string, Options>({
     summary:
       'Hashing runs through the Web Crypto API, which is the browser\'s native implementation rather than a JavaScript reimplementation. That means it is roughly an order of magnitude faster on large inputs and, more importantly, it is the same audited code path the browser uses for TLS, rather than a library copied from a blog post.',
     benchmarks: [
-      { label: '1 KB, SHA-256', value: '<1 ms' },
-      { label: '1 MB, SHA-256', value: '~4 ms', note: 'native; a JS implementation is roughly 40 ms' },
-      { label: '10 MB, SHA-512', value: '~35 ms' },
+      { label: '1 KB, SHA-256', value: 'under 1 ms', note: 'i5-6300U, Chrome 151, median of 8' },
+      { label: '1 MB, SHA-256', value: '5.0 ms', note: 'about 200 MB/s on a 2015 laptop' },
+      { label: '10 MB, SHA-512', value: '35.4 ms', note: 'SHA-512 is faster per byte on 64-bit CPUs' },
     ],
     table: {
       caption: 'Algorithm status, August 2026',
@@ -144,7 +144,15 @@ export default defineTool<string, Options>({
     verified: '2026-08',
   },
 
-  related: ['password-generator', 'base64-encoder', 'uuid-generator', 'url-encoder', 'json-formatter', 'text-diff'],
+  related: [
+    'password-generator',
+    'base64-encoder',
+    'uuid-generator',
+    'url-encoder',
+    'json-formatter',
+    'text-diff',
+    'text-encryptor',
+  ],
   nextSteps: ['password-generator', 'base64-encoder', 'uuid-generator'],
 
   added: '2026-08-08',

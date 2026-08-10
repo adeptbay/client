@@ -101,8 +101,8 @@ export default function MethodologyPage() {
       </p>
       <ul>
         <li>
-          <strong>Hardware:</strong> Apple M2 MacBook Air, 16 GB, on mains power, Chrome 141, no
-          extensions, a fresh profile.
+          <strong>Reference machine:</strong> Intel Core i5-6300U at 2.40 GHz, 4 threads, 8 GB RAM,
+          Chrome 151, no extensions, a fresh profile.
         </li>
         <li>
           <strong>Procedure:</strong> ten runs, first two discarded to allow for JIT warm-up, median
@@ -114,8 +114,14 @@ export default function MethodologyPage() {
         </li>
       </ul>
       <p>
-        Your machine will differ, sometimes by a factor of five. The figures are there to show the
-        order of magnitude and to be reproducible, not to promise you a specific millisecond count.
+        That reference machine is deliberately unimpressive — a 2015 ultrabook processor. Benchmarks
+        run on the newest laptop the author owns flatter the software and tell you nothing about
+        what the tool will feel like on the device you are actually holding. If a number here is
+        acceptable on an i5-6300U, it is comfortable almost everywhere.
+      </p>
+      <p>
+        Your machine will still differ. The figures show the order of magnitude and are reproducible
+        by the method above; they are not a promise of a specific millisecond count.
       </p>
 
       <h2>Where external numbers come from</h2>
