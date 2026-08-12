@@ -347,18 +347,31 @@ export function ToolCard({ tool, showCategory = false }: { tool: AnyTool; showCa
   );
 }
 
-/** Compact row for dense lists. Used by /all-tools. */
+/** Compact row for dense lists. Used by /all-tools.
+
+   One line from sm up. Below that the tagline would truncate to a
+   handful of characters, so it drops to its own full-width line and
+   wraps, leaving the name and score paired on the line above.        */
 export function ToolRow({ tool }: { tool: AnyTool }) {
   return (
     <Link
       href={`/${tool.category}/${tool.slug}`}
       className={cx(
-        'flex items-baseline gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-sunken',
+        'flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-lg px-3 py-2',
+        'transition-colors hover:bg-sunken',
       )}
     >
       <span className="text-sm font-medium text-fg">{tool.name}</span>
-      <span className="min-w-0 flex-1 truncate text-[13px] text-fg-subtle">{tool.tagline}</span>
-      <span className="shrink-0 font-mono text-[11px] text-fg-subtle" title="50-point priority score">
+      <span
+        className="order-last w-full text-[13px] leading-snug text-fg-subtle
+                   sm:order-none sm:w-auto sm:min-w-0 sm:flex-1 sm:truncate sm:leading-normal"
+      >
+        {tool.tagline}
+      </span>
+      <span
+        className="ml-auto shrink-0 font-mono text-[11px] text-fg-subtle sm:ml-0"
+        title="50-point priority score"
+      >
         {scoreTotal(tool.score)}
       </span>
     </Link>
