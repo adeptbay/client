@@ -56,7 +56,7 @@ export function HowToSection({ tool }: { tool: ToolMeta }) {
             </span>
             <div className="min-w-0">
               <h3 className="text-sm font-medium text-fg">{step.title}</h3>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-fg-muted">{step.detail}</p>
+              <p className="mt-0.5 max-w-3xl text-[13px] leading-relaxed text-fg-muted">{step.detail}</p>
             </div>
           </li>
         ))}
@@ -116,7 +116,7 @@ export function InfoGainBlock({ tool }: { tool: ToolMeta }) {
   return (
     <Section id="technical-notes" title="Technical notes">
       <div className="space-y-5 rounded-xl border border-line bg-panel px-5 py-5">
-        <p className="text-[13px] leading-relaxed text-fg-muted">{g.summary}</p>
+        <p className="max-w-3xl text-[13px] leading-relaxed text-fg-muted">{g.summary}</p>
 
         {g.benchmarks && g.benchmarks.length > 0 && (
           <div>
@@ -256,7 +256,7 @@ export function FaqSection({ tool }: { tool: ToolMeta }) {
                 className="shrink-0 text-fg-subtle transition-transform group-open:rotate-90"
               />
             </summary>
-            <p className="px-4 pb-4 text-[13px] leading-relaxed text-fg-muted">{item.a}</p>
+            <p className="max-w-3xl px-4 pb-4 text-[13px] leading-relaxed text-fg-muted">{item.a}</p>
           </details>
         ))}
       </div>

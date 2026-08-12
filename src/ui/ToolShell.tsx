@@ -49,7 +49,18 @@ export function ToolShell({
   crossCategory: AnyTool[];
 }) {
   return (
-    <article className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+    /* Halfway between the old max-w-4xl and the max-w-6xl the header,
+       footer and hubs use: 1024px, so the tool sits 64px inside the nav
+       instead of 128px. Deliberately not flush — a tool page is a
+       working surface, and running it edge to edge with the chrome
+       makes the input field wider than anyone wants to read back.
+
+       Width is added to the frame, not to the prose: the paragraphs
+       below stay capped at a readable measure (see max-w-3xl on the
+       tagline here, and on the how-to, technical-notes and FAQ copy in
+       ToolSections). The extra room goes to the parts that use it — the
+       input, the options grid, the result. */
+    <article className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
       {/* 11 · Breadcrumb (rendered first, listed last in the anatomy) */}
       <Breadcrumb
         items={[
@@ -64,7 +75,7 @@ export function ToolShell({
         <h1 className="text-2xl font-semibold tracking-tight text-fg sm:text-[28px]">{tool.name}</h1>
 
         {/* 2 · Value proposition + differentiator, one line */}
-        <p className="mt-2 text-[15px] leading-relaxed text-fg-muted">{tool.tagline}</p>
+        <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-fg-muted">{tool.tagline}</p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {tool.runtime === 'client' && (

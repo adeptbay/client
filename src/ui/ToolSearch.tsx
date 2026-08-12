@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Command palette. Step 04 item 25.
@@ -20,15 +20,22 @@
  * <body>. Do not "simplify" this back into the tree.
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 // From `search-index`, not `search`: the latter imports the registry,
 // which would pull every tool definition into the client bundle.
-import { searchTools, type SearchEntry } from '@core/search-index';
-import { cx, Kbd } from './primitives';
-import { CloseIcon, SearchIcon } from './Icons';
+import { searchTools, type SearchEntry } from "@core/search-index";
+import { cx, Kbd } from "./primitives";
+import { CloseIcon, SearchIcon } from "./Icons";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -36,7 +43,7 @@ const FOCUSABLE =
 export function ToolSearch({ index }: { index: SearchEntry[] }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +61,7 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
 
   const close = useCallback(() => {
     setOpen(false);
-    setQuery('');
+    setQuery("");
     setActive(0);
     // Return focus where the user left it, or the keyboard is stranded
     // at the top of the document.
@@ -64,13 +71,13 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
   // Global shortcut.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((v) => !v);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   /**
@@ -91,7 +98,7 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
     const prevOverflow = body.style.overflow;
     const prevPadding = body.style.paddingRight;
 
-    body.style.overflow = 'hidden';
+    body.style.overflow = "hidden";
     if (gutter > 0) {
       body.style.paddingRight = `${gutter}px`;
     }
@@ -104,16 +111,16 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
 
   // Keep the highlighted row inside the scroll container.
   useEffect(() => {
-    listRef.current?.children[active]?.scrollIntoView({ block: 'nearest' });
+    listRef.current?.children[active]?.scrollIntoView({ block: "nearest" });
   }, [active]);
 
   /** Trap Tab inside the dialog. Everything behind it is inert. */
   const trapFocus = (e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab' || !dialogRef.current) return;
+    if (e.key !== "Tab" || !dialogRef.current) return;
 
-    const nodes = [...dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-      (el) => el.offsetParent !== null,
-    );
+    const nodes = [
+      ...dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
+    ].filter((el) => el.offsetParent !== null);
     if (nodes.length === 0) return;
 
     const first = nodes[0]!;
@@ -129,7 +136,7 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
   };
 
   const onDialogKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       e.stopPropagation();
       close();
       return;
@@ -138,19 +145,19 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
   };
 
   const onInputKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((i) => (i + 1) % Math.max(1, results.length));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((i) => (i - 1 + results.length) % Math.max(1, results.length));
-    } else if (e.key === 'Home') {
+    } else if (e.key === "Home") {
       e.preventDefault();
       setActive(0);
-    } else if (e.key === 'End') {
+    } else if (e.key === "End") {
       e.preventDefault();
       setActive(Math.max(0, results.length - 1));
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       const hit = results[active];
       if (hit) {
         e.preventDefault();
@@ -194,7 +201,9 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
             aria-expanded="true"
             aria-controls={listId}
             aria-autocomplete="list"
-            aria-activedescendant={results[active] ? `${listId}-${active}` : undefined}
+            aria-activedescendant={
+              results[active] ? `${listId}-${active}` : undefined
+            }
             autoComplete="off"
             spellCheck={false}
             className="h-12 flex-1 bg-transparent text-[15px] text-fg outline-none placeholder:text-fg-subtle"
@@ -211,16 +220,30 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
 
         {results.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-fg-subtle">
-            Nothing matches “{query}”. Try a shorter word, or{' '}
-            <Link href="/all-tools" onClick={close} className="text-brand-text underline">
+            Nothing matches “{query}”. Try a shorter word, or{" "}
+            <Link
+              href="/all-tools"
+              onClick={close}
+              className="text-brand-text underline"
+            >
               browse every tool
             </Link>
             .
           </p>
         ) : (
-          <ul ref={listRef} id={listId} role="listbox" className="scroll-slim max-h-80 overflow-y-auto p-2">
+          <ul
+            ref={listRef}
+            id={listId}
+            role="listbox"
+            className="scroll-slim max-h-80 overflow-y-auto p-2"
+          >
             {results.map((r, i) => (
-              <li key={`${r.category}/${r.slug}`} id={`${listId}-${i}`} role="option" aria-selected={i === active}>
+              <li
+                key={`${r.category}/${r.slug}`}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === active}
+              >
                 <Link
                   href={`/${r.category}/${r.slug}`}
                   onClick={close}
@@ -229,13 +252,17 @@ export function ToolSearch({ index }: { index: SearchEntry[] }) {
                   // should move between the input and the close button.
                   tabIndex={-1}
                   className={cx(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors',
-                    i === active ? 'bg-brand-soft' : 'hover:bg-sunken',
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
+                    i === active ? "bg-brand-soft" : "hover:bg-sunken",
                   )}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-fg">{r.name}</span>
-                    <span className="block truncate text-xs text-fg-subtle">{r.tagline}</span>
+                    <span className="block truncate text-sm font-medium text-fg">
+                      {r.name}
+                    </span>
+                    <span className="block truncate text-xs text-fg-subtle">
+                      {r.tagline}
+                    </span>
                   </span>
                   <span className="shrink-0 font-mono text-[11px] uppercase tracking-wider text-fg-subtle">
                     {r.category}

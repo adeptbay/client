@@ -26,6 +26,18 @@ export interface Category {
   /** 24×24 stroke path, rendered by <CategoryIcon>. */
   icon: string;
   order: number;
+  /**
+   * Show this division in the header and footer before it has a live
+   * tool. The hub then renders its "planned, nothing shipped yet"
+   * placeholder, which `seo.ts` already marks `noindex, follow` and
+   * `sitemap.ts` already omits — so pinning one costs no index quality.
+   *
+   * Use it for a division being actively built, and remove the flag
+   * once tools ship, at which point `activeCategories()` carries it on
+   * its own. A permanently pinned empty hub is a dead end in the
+   * primary nav of every page on the site.
+   */
+  navPin?: boolean;
 }
 
 export const categories: Category[] = [
@@ -158,6 +170,8 @@ export const categories: Category[] = [
     role: 'The highest-intent traffic on the site: the CPC of the business division with the volume of the student one, and the shortest path from a free tool to a paid one.',
     icon: 'M6 3h12v18H6zM12 9.3a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4M8.9 13.4c.3-1.7 1.6-2.8 3.1-2.8s2.8 1.1 3.1 2.8M9 17.5h6',
     order: 10,
+    // Both CV tools are still drafts. Remove this once one goes live.
+    navPin: true,
   },
   {
     slug: 'student',

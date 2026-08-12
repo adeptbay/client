@@ -52,7 +52,13 @@ export function SiteHeader({
                 aria-current={active ? 'page' : undefined}
                 className={cx(
                   'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
-                  active ? 'bg-brand-soft text-brand-text' : 'text-fg-muted hover:bg-sunken hover:text-fg',
+                  // Primary navigation is not secondary text. `text-fg-muted`
+                  // (#536265) read as disabled next to the wordmark; `text-fg`
+                  // is 17:1 on the surface and carries the same weight as the
+                  // logo, which is what a top-level nav should do. Hover moves
+                  // to brand rather than to a darker grey, because there is
+                  // nowhere darker left to go.
+                  active ? 'bg-brand-soft text-brand-text' : 'text-fg hover:bg-sunken hover:text-brand-text',
                 )}
               >
                 {c.name}
@@ -61,7 +67,7 @@ export function SiteHeader({
           })}
           <Link
             href="/all-tools"
-            className="rounded-md px-2.5 py-1.5 text-sm font-medium text-fg-muted transition-colors hover:bg-sunken hover:text-fg"
+            className="rounded-md px-2.5 py-1.5 text-sm font-medium text-fg transition-colors hover:bg-sunken hover:text-brand-text"
           >
             All tools
           </Link>
@@ -91,7 +97,7 @@ export function SiteHeader({
                 <li key={c.slug}>
                   <Link
                     href={`/${c.slug}`}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-fg-muted hover:bg-sunken hover:text-fg"
+                    className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-fg hover:bg-sunken hover:text-brand-text"
                   >
                     <CategoryIcon path={c.icon} size={17} className="shrink-0 text-fg-subtle" />
                     {c.name}

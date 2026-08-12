@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { activeCategories, totalLive } from "@core/registry";
+import { navCategories, totalLive } from "@core/registry";
 import { searchIndex } from "@core/search";
 import { site } from "@core/site";
 import { jsonLd, organizationSchema, websiteSchema } from "@core/schema";
@@ -64,7 +64,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const categories = activeCategories();
+  const categories = navCategories();
   const index = searchIndex();
   const count = totalLive();
 

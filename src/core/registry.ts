@@ -149,6 +149,16 @@ export const toolsInCluster = (cluster: string): AnyTool[] =>
 export const activeCategories = (): Category[] =>
   categories.filter((c) => toolsInCategory(c.slug).length > 0);
 
+/**
+ * What the header and footer list.
+ *
+ * Everything `activeCategories()` returns, plus any division flagged
+ * `navPin` — a division being built, whose hub is still a placeholder.
+ * Kept in planned order so the nav reads as the roadmap does.
+ */
+export const navCategories = (): Category[] =>
+  categories.filter((c) => c.navPin || toolsInCategory(c.slug).length > 0);
+
 export const countInCategory = (category: string): number => toolsInCategory(category).length;
 
 export const totalLive = (): number => liveTools().length;
