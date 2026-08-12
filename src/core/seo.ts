@@ -199,5 +199,19 @@ export function categoryMetadata(category: Category, count: number): Metadata {
       `free ${noun.toLowerCase()}`,
       `online ${noun.toLowerCase()}`,
     ],
+    /**
+     * A division with nothing shipped yet renders a placeholder under a
+     * "0 Free PDF Tools" title. `sitemap.ts` already omits those hubs,
+     * so leaving them indexable made the two disagree: crawlable and
+     * indexable, but never submitted — a thin page earning nothing, on a
+     * site where thinness is judged across the whole domain rather than
+     * one URL at a time.
+     *
+     * The condition is the same one `shardNames()` filters on, so a hub
+     * re-enters the index on the same deploy that puts it in the
+     * sitemap. `follow` stays on: the cross-division links are still
+     * worth crawling.
+     */
+    noindex: count === 0,
   });
 }
