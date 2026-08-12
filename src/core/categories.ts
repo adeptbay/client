@@ -147,6 +147,19 @@ export const categories: Category[] = [
     order: 9,
   },
   {
+    slug: 'career',
+    name: 'Career',
+    title: 'CV & Career Tools',
+    tagline: 'CVs, cover letters and applications — written, checked, and never uploaded.',
+    description:
+      'Build a CV, check it the way an applicant tracking system reads it, and write the letter that goes with it. These documents hold your address, phone number and work history, so all of them run in your browser.',
+    target: 60,
+    tier: 2,
+    role: 'The highest-intent traffic on the site: the CPC of the business division with the volume of the student one, and the shortest path from a free tool to a paid one.',
+    icon: 'M6 3h12v18H6zM12 9.3a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4M8.9 13.4c.3-1.7 1.6-2.8 3.1-2.8s2.8 1.1 3.1 2.8M9 17.5h6',
+    order: 10,
+  },
+  {
     slug: 'student',
     name: 'Student',
     title: 'Student & Education Tools',
@@ -157,7 +170,7 @@ export const categories: Category[] = [
     tier: 3,
     role: 'Volume with a strong seasonal curve, and unusually loyal returning users.',
     icon: 'M12 4 2 9l10 5 10-5zM6 11.5V17c0 1.5 3 3 6 3s6-1.5 6-3v-5.5',
-    order: 10,
+    order: 11,
   },
   {
     slug: 'ai',
@@ -170,7 +183,7 @@ export const categories: Category[] = [
     tier: 3,
     role: 'The Premium engine. AI is a margin decision before it is a product decision (Part 7).',
     icon: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18.5 15l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z',
-    order: 11,
+    order: 12,
   },
 ];
 

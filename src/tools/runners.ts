@@ -49,4 +49,8 @@ export const runners: Record<string, Runner> = {
 
   // calculator
   'percentage-calculator': () => import('./calculator/percentage-calculator'),
+
+  // career
+  'resume-builder': () => import('./career/resume-builder'),
+  'resume-checker': () => import('./career/resume-checker'),
 };

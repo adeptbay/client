@@ -43,6 +43,10 @@ import passwordGenerator from './security/password-generator';
 // ── calculator ────────────────────────────────────────────────────
 import percentageCalculator from './calculator/percentage-calculator';
 
+// ── career ────────────────────────────────────────────────────────
+import resumeBuilder from './career/resume-builder';
+import resumeChecker from './career/resume-checker';
+
 export const allTools: ToolDefinition<never, never>[] = [
   // text
   wordCounter,
@@ -73,4 +77,8 @@ export const allTools: ToolDefinition<never, never>[] = [
 
   // calculator
   percentageCalculator,
+
+  // career
+  resumeBuilder,
+  resumeChecker,
 ];
