@@ -16,6 +16,33 @@ import { bar, pad, readTools } from './lib/read-registry.mjs';
 
 const tools = await readTools();
 
+/**
+ * Tool pages carry no byline date — they date their claims instead, in
+ * the "last verified" line under the technical notes. That is only an
+ * honesty signal while it is true, so it needs an owner. Six months is
+ * the point at which "benchmarks re-run each quarter" has visibly
+ * stopped being the case.
+ *
+ * The build only warns about this, because staleness arrives with no
+ * code change and should never block an unrelated deploy. This script
+ * is the deliberate check, so here it counts as a real problem.
+ */
+const STALE_AFTER_MONTHS = 6;
+const staleCutoff = new Date();
+staleCutoff.setMonth(staleCutoff.getMonth() - STALE_AFTER_MONTHS);
+
+function verificationAge(verified) {
+  if (!verified) return null;
+  const [year, month] = verified.split('-').map(Number);
+  if (!year || !month) return null;
+  const at = new Date(year, month - 1, 1);
+  if (at >= staleCutoff) return null;
+  const months =
+    (staleCutoff.getFullYear() - year) * 12 + (staleCutoff.getMonth() - (month - 1)) +
+    STALE_AFTER_MONTHS;
+  return { verified, months };
+}
+
 const problems = [];
 
 for (const tool of tools) {
@@ -43,6 +70,16 @@ for (const tool of tools) {
 
   if (tool.score < 30 && tool.status === 'live') {
     issues.push(`score ${tool.score}/50 — below the backlog threshold but shipped`);
+  }
+
+  if (tool.status === 'live') {
+    const stale = verificationAge(tool.verified);
+    if (stale) {
+      issues.push(
+        `page claims "last verified ${stale.verified}" — ${stale.months} months old; ` +
+          're-run the benchmarks or drop the claim',
+      );
+    }
   }
 
   if (issues.length > 0) problems.push({ tool, issues });

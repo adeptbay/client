@@ -89,6 +89,10 @@ export async function readTools() {
         hasBenchmarks: /benchmarks:\s*\[/.test(source),
         hasTable: /table:\s*\{/.test(source),
         hasLimits: /limits:\s*\[/.test(source),
+        // ISO month, e.g. "2026-08". Rendered on the page as the date
+        // the benchmarks were last re-run, so the audit has to be able
+        // to tell when that claim has gone stale.
+        verified: field(source, 'verified'),
         // Only scaffold placeholders count. A bare /TODO/ also matches
         // legitimate content — a code sample containing "// TODO: add
         // logging" is not an unfinished tool.

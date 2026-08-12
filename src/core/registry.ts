@@ -64,6 +64,47 @@ function auditRegistry(list: AnyTool[]): void {
 
 auditRegistry(tools);
 
+/* ── Verification decay ──────────────────────────────────────────────
+   Tool pages carry no byline date; they date their claims instead, via
+   the "last verified" line on the InfoGain block. That only works while
+   the claim is true — a verification date that has quietly stopped
+   being accurate is worse than no date at all, because it converts an
+   honesty signal into a false one.
+
+   This warns rather than throws, unlike everything else in this file.
+   Staleness arrives on its own, with nobody touching the code, so a
+   hard failure would break an unrelated deploy on an arbitrary
+   Tuesday. `npm run audit:thin` exits non-zero on the same condition,
+   which is the right place for it: a check you run deliberately, not
+   one that ambushes a hotfix.                                        */
+
+const STALE_AFTER_MONTHS = 6;
+
+function warnOnStaleVerification(list: AnyTool[]): void {
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - STALE_AFTER_MONTHS, 1);
+
+  const stale = list.filter((t) => {
+    if (t.status !== 'live' || !t.infoGain.verified) return false;
+    const [year, month] = t.infoGain.verified.split('-').map(Number);
+    if (!year || !month) return false;
+    return new Date(year, month - 1, 1) < cutoff;
+  });
+
+  if (stale.length === 0) return;
+
+  console.warn(
+    `\n  ${stale.length} live tool page(s) claim a verification date older than ` +
+      `${STALE_AFTER_MONTHS} months:\n` +
+      stale
+        .map((t) => `    ${t.category}/${t.slug} — last verified ${t.infoGain.verified}`)
+        .join('\n') +
+      '\n  Re-run the benchmarks and update infoGain.verified, or drop the claim.\n',
+  );
+}
+
+warnOnStaleVerification(tools);
+
 /* ── Indexes ────────────────────────────────────────────────────── */
 
 const byPath = new Map<string, AnyTool>(tools.map((t) => [`${t.category}/${t.slug}`, t]));

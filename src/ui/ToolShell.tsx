@@ -135,9 +135,27 @@ export function ToolShell({
 
       <AdSlot placement="below-content" className="mt-10" />
 
+      {/* No byline date here — deliberately.
+
+          A tool page is evergreen and transactional: someone searching
+          "word counter" wants a working word counter, not its release
+          history. A visible "last updated 2026-08-09" adds nothing on
+          the day it ships and decays into a reason not to click while
+          the tool itself remains correct and unchanged. Google treats
+          freshness as query-dependent and shows byline dates mostly on
+          newsy queries; its own guidance also asks that a page not
+          carry competing date signals, and this line duplicated the
+          "last verified" date under the technical notes.
+
+          What survives is the date that earns its place: this site
+          dates its *claims*, not its pages. The verification date on
+          the InfoGain block scopes the benchmarks, which is the part a
+          reader — or a retrieval engine — has reason to check. The
+          machine-readable dates stay in the SoftwareApplication schema
+          and the sitemap, so Google and AI retrieval keep the full
+          signal at no cost in the SERP. */}
       <footer className="mt-10 border-t border-line pt-5 text-xs text-fg-subtle">
         <p>
-          Added {tool.added} · last updated {tool.updated} ·{' '}
           <Link href={`/${category.slug}`} className="text-brand-text hover:underline">
             more {category.name.toLowerCase()} tools
           </Link>
