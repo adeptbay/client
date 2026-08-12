@@ -26,17 +26,38 @@ npm run typecheck    # tsc --noEmit
 
 ## Deploy to Vercel
 
-Zero configuration. Import the repository — Next.js is detected automatically.
-
-The only environment variable worth setting on day one:
+Import the repository — Next.js is detected automatically. One environment
+variable is required before the first production build:
 
 ```
 NEXT_PUBLIC_SITE_URL=https://adeptbay.com
 ```
 
-Without it the site falls back to Vercel's generated production URL, which
-works but puts the wrong host in canonicals and sitemaps. Everything else in
-`.env.example` is optional and off by default.
+Every canonical, sitemap entry, OG image URL and schema `@id` is built from
+this one value. Set it in **Project → Settings → Environment Variables** for
+the Production environment *before* deploying: `NEXT_PUBLIC_*` values are
+inlined at build time, so setting it afterwards needs a redeploy.
+
+**A production build without it fails on purpose** (`src/core/site.ts`).
+Falling back to the generated `*.vercel.app` host would tell Google that the
+Vercel subdomain is the canonical original and `adeptbay.com` is a copy — a
+mistake that is invisible in a green build and expensive to unwind once
+indexed. Preview deployments fall back deliberately, because there the
+generated host *is* the correct host.
+
+Two settings to confirm in the Vercel dashboard, neither of which lives in
+this repo:
+
+- **Settings → Domains** — `adeptbay.com` set as the primary domain, so the
+  `*.vercel.app` alias 301s to it instead of serving a second indexable copy.
+- **Settings → Deployment Protection** — preview deployments stay protected
+  or `noindex`, so branch URLs do not become indexed clones.
+
+Everything else in `.env.example` is optional and off by default. The
+Content Security Policy in `next.config.mjs` reads that file too: setting
+`NEXT_PUBLIC_ANALYTICS_URL` or `NEXT_PUBLIC_ADSENSE_CLIENT` automatically
+widens the policy to permit exactly those hosts, so enabling a feature never
+silently fails a CSP check.
 
 ---
 

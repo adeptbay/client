@@ -14,6 +14,7 @@ export default defineTool<string, Options>({
 
   name: 'Sort Lines',
   tagline: 'Alphabetical, numeric, by length or shuffled — with correct accent handling.',
+  titleBenefit: 'Alphabetical, Numeric or Length',
   description:
     'Sort lines alphabetically, numerically, by length, or shuffle them. Locale-aware collation, so accented and non-Latin text sorts the way a person expects.',
   keywords: ['sort lines', 'sort text alphabetically', 'alphabetical order tool', 'sort list online'],

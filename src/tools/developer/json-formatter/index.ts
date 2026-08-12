@@ -14,6 +14,7 @@ export default defineTool<string, Options>({
 
   name: 'JSON Formatter',
   tagline: 'Format, validate and minify JSON — with errors that point at the line.',
+  titleBenefit: 'Format, Validate, Minify',
   description:
     'Beautify or minify JSON and validate it in one pass. When parsing fails you get the line, column, offending text and likely cause — not a raw engine message.',
   keywords: ['json formatter', 'json beautifier', 'json validator', 'format json online', 'minify json'],

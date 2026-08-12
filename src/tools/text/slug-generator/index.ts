@@ -15,6 +15,7 @@ export default defineTool<string, Options>({
 
   name: 'Slug Generator',
   tagline: 'Turn any title into a clean, URL-safe slug — one per line, in bulk.',
+  titleBenefit: 'Clean, URL-Safe, in Bulk',
   description:
     'Convert titles into URL slugs. Accents are transliterated rather than dropped, so "Café Münster" becomes "cafe-munster" instead of losing half its letters.',
   keywords: ['slug generator', 'url slug generator', 'permalink generator', 'text to slug'],

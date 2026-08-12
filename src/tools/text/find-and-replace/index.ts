@@ -19,6 +19,7 @@ export default defineTool<string, Options>({
 
   name: 'Find and Replace',
   tagline: 'Regex, capture groups, and rule chains that run in order — with a guard against patterns that freeze the page.',
+  titleBenefit: 'Regex and Rule Chains',
   description:
     'Find and replace text with regex and capture groups, or run a whole list of rules in sequence. Refuses patterns that would hang your browser instead of locking up.',
   keywords: [

@@ -27,6 +27,34 @@ export const CHANGE_LABELS: Record<ChangeKind, string> = {
 
 export const changelog: ChangeEntry[] = [
   {
+    date: '2026-08-12',
+    kind: 'fixed',
+    title: 'Passphrases were being written into the address bar',
+    detail:
+      'Tool options are stored in the URL so a configured tool is a shareable link. Two options should never have been: the Text Encryptor passphrase and the Hash Generator HMAC secret. Typing either put it in the query string, and from there into browser history and any shared link. Both are now masked, with a Show toggle, and are excluded from the URL in both directions. Present from the launch of each tool until this fix; no data was ever transmitted, but the secret was recorded locally where it should not have been.',
+  },
+  {
+    date: '2026-08-12',
+    kind: 'fixed',
+    title: 'Twenty tool pages advertised an API that does not exist yet',
+    detail:
+      'An "API available" badge rendered from a tool\'s eligibility flag rather than from whether the API itself is live. The public API is still unreleased, so the badge now requires both.',
+  },
+  {
+    date: '2026-08-12',
+    kind: 'fixed',
+    title: 'Social preview images were blocked from being fetched',
+    detail:
+      'robots.txt disallowed the whole /api/ path, which includes the endpoint that generates every Open Graph image. Facebook and X both honour robots.txt, so shared links would have shown a blank card. The image endpoint is now explicitly allowed.',
+  },
+  {
+    date: '2026-08-12',
+    kind: 'improved',
+    title: 'Page titles keep the brand name again',
+    detail:
+      'Titles were assembled and then truncated to 60 characters from the right, which cut off "| AdeptBay" on every tool and guide page and left a dangling dash. Titles are now budgeted so the tool name and the brand always survive and only the benefit phrase shrinks.',
+  },
+  {
     date: '2026-08-09',
     kind: 'added',
     title: 'Eight new text tools — the Text division is complete',

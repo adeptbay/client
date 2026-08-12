@@ -21,7 +21,22 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          /**
+           * The OG image endpoint, carved back out of the /api/ block.
+           *
+           * Every page's og:image and twitter:image points at
+           * /api/og?title=… (see core/seo.ts). Both facebookexternalhit
+           * and Twitterbot obey robots.txt, so leaving this inside the
+           * /api/ disallow means every social share renders a blank
+           * card — the images are generated correctly and then never
+           * fetched. This rule is longer than both `/api/` and `/*?*`,
+           * and the longest matching rule wins, so it re-allows the
+           * endpoint including its query string.
+           */
+          '/api/og',
+        ],
         disallow: [
           '/api/',
           // Parameterised variants of a canonical tool page.
@@ -38,6 +53,13 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: 'Google-Extended', allow: '/' },
     ],
     sitemap: absoluteUrl('/sitemap.xml'),
-    host: absoluteUrl('/'),
+    /**
+     * No `host` directive. It was only ever read by Yandex, which
+     * deprecated it in 2018 in favour of a 301 plus a canonical tag —
+     * both of which this site already has. Emitting it from
+     * `absoluteUrl('/')` also produced `Host: https://adeptbay.com/`,
+     * where the directive takes a bare hostname, so it was a malformed
+     * line advertising a rule nothing enforces.
+     */
   };
 }

@@ -14,6 +14,7 @@ export default defineTool<string, Options>({
 
   name: 'Base64 Encode / Decode',
   tagline: 'Encode and decode Base64 with full Unicode support and URL-safe output.',
+  titleBenefit: 'Unicode & URL-Safe',
   description:
     'Convert text to Base64 and back. Handles emoji, Bangla, Arabic and CJK correctly, supports URL-safe Base64, and tolerates missing padding on decode.',
   keywords: ['base64 encode', 'base64 decode', 'base64 converter', 'base64 to text', 'url safe base64'],

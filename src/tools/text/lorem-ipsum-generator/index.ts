@@ -23,6 +23,7 @@ export default defineTool<string, Options>({
 
   name: 'Lorem Ipsum Generator',
   tagline: 'Placeholder text in five scripts, six output formats, and a seed so it stops changing between runs.',
+  titleBenefit: 'Five Scripts, Six Formats',
   description:
     'Generate placeholder text as HTML, Markdown, JSX or a JSON array. Set a seed for reproducible output, or switch script to test a layout that must hold Bangla.',
   keywords: [

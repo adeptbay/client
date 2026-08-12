@@ -18,6 +18,7 @@ export default defineTool<string, Options>({
 
   name: 'Readability Checker',
   tagline: 'Flesch Reading Ease, Flesch-Kincaid grade and Gunning Fog, with the inputs shown.',
+  titleBenefit: 'Flesch and Kincaid Grades',
   description:
     'Score how hard your writing is to read using three standard formulas. Shows the sentence length and syllable counts behind each score, so you know what to change.',
   keywords: ['readability checker', 'flesch reading ease', 'flesch kincaid grade level', 'readability score'],

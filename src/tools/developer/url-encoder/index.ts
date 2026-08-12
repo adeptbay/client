@@ -13,6 +13,7 @@ export default defineTool<string, Options>({
 
   name: 'URL Encode / Decode',
   tagline: 'Percent-encode URLs and query strings, with the right mode for each.',
+  titleBenefit: 'Percent-Encode Instantly',
   description:
     'Encode and decode URLs, query parameters and form data. Three modes, because encoding a whole URL and encoding one parameter are not the same operation.',
   keywords: ['url encoder', 'url decoder', 'percent encoding', 'urlencode online', 'query string encoder'],

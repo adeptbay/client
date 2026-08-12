@@ -25,6 +25,7 @@ export default defineTool<string, Options>({
 
   name: 'Character Frequency Counter',
   tagline: 'Letter, word and phrase frequency — compared against the English baseline for cipher work.',
+  titleBenefit: 'Letters and Words',
   description:
     'Count how often each character, word or phrase appears, with percentages and a deviation from standard English letter frequency. Includes the index of coincidence.',
   keywords: [

@@ -15,7 +15,9 @@
 
 import { absoluteUrl } from './site';
 import { categories } from './categories';
+import { flags } from './flags';
 import { liveTools, toolsInCategory } from './registry';
+import { posts } from '@/content/posts';
 
 export interface SitemapEntry {
   loc: string;
@@ -52,13 +54,39 @@ export function shardNames(): string[] {
 export function entriesForShard(shard: string): SitemapEntry[] {
   if (shard === 'core') {
     const newest = liveTools().reduce((max, t) => (t.updated > max ? t.updated : max), '2026-01-01');
-    return STATIC_PAGES.map((p) => ({
+
+    const staticEntries = STATIC_PAGES.map((p) => ({
       loc: absoluteUrl(p.path),
       // Hubs and indexes genuinely change when a tool is added.
       lastmod: p.path === '/' || p.path === '/all-tools' ? newest : undefined,
       changefreq: p.changefreq,
       priority: p.priority,
     }));
+
+    /**
+     * Blog posts. `/blog` was listed but its posts were not, so every
+     * article on the site was invisible to the sitemap — on a project
+     * whose entire strategy is "getting indexed at all", the supporting
+     * content was the one thing left out of the index.
+     */
+    const postEntries: SitemapEntry[] = posts.map((post) => ({
+      loc: absoluteUrl(`/blog/${post.slug}`),
+      lastmod: post.updated,
+      changefreq: 'yearly',
+      priority: 0.5,
+    }));
+
+    /**
+     * `/pricing` renders `noindex` until the Premium flag is on
+     * (see its page metadata). Submitting a noindex URL in a sitemap is
+     * a Search Console warning and wasted crawl, so it appears here on
+     * exactly the same condition.
+     */
+    const pricingEntries: SitemapEntry[] = flags.premium
+      ? [{ loc: absoluteUrl('/pricing'), changefreq: 'monthly', priority: 0.7 }]
+      : [];
+
+    return [...staticEntries, ...postEntries, ...pricingEntries];
   }
 
   const tools = toolsInCategory(shard);

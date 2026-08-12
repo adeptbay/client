@@ -14,6 +14,7 @@ export default defineTool<[string, string], Options>({
 
   name: 'Text Diff',
   tagline: 'Compare two blocks of text and see exactly which lines changed.',
+  titleBenefit: 'See Exactly What Changed',
   description:
     'Compare two texts line by line and see additions and removals side by side. Handles files of thousands of lines in the browser, with no upload and no account.',
   keywords: ['text compare', 'diff checker', 'compare two texts', 'text difference tool', 'online diff'],

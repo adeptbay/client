@@ -15,6 +15,7 @@ export default defineTool<string, Options>({
 
   name: 'Remove Duplicate Lines',
   tagline: 'Strip repeated lines from a list while keeping the original order.',
+  titleBenefit: 'Order Preserved',
   description:
     'Remove duplicate lines from any list without sorting it. Choose whether case and surrounding whitespace count, and whether to keep the first or last occurrence.',
   keywords: [

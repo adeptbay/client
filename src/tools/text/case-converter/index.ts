@@ -12,6 +12,7 @@ export default defineTool<string, Options>({
 
   name: 'Case Converter',
   tagline: 'Twelve cases including camelCase, snake_case and proper Title Case.',
+  titleBenefit: 'Twelve Cases, One Click',
   description:
     'Convert text between upper, lower, title, sentence, camel, pascal, snake, kebab and CONSTANT case. Title Case follows Chicago style rather than capitalising every word.',
   keywords: [

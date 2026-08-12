@@ -35,7 +35,25 @@ interface OptionBase {
 }
 
 export type ToolOption =
-  | (OptionBase & { type: 'text'; default: string; placeholder?: string; maxLength?: number })
+  | (OptionBase & {
+      type: 'text';
+      default: string;
+      placeholder?: string;
+      maxLength?: number;
+      /**
+       * A passphrase, HMAC key or anything else that must never be
+       * written down. Secret options are masked in the UI and are
+       * excluded from URL persistence in BOTH directions — they are
+       * never written to the query string, and never restored from one.
+       *
+       * Without this the "shareable link" feature (OptionsForm) would
+       * put the user's passphrase in the address bar, from where it
+       * reaches browser history, profile sync and every screenshot.
+       * On a site whose promise is "your data never leaves your device"
+       * that is the one bug that cannot ship.
+       */
+      secret?: boolean;
+    })
   /** Multi-line option — rule lists, templates, a second body of text. */
   | (OptionBase & {
       type: 'textarea';
@@ -211,6 +229,17 @@ export interface ToolDefinition<TInput = string, TOptions = Record<string, Optio
   name: string;
   /** One line, benefit + differentiator. Becomes the H1 sub-heading. */
   tagline: string;
+  /**
+   * The `{benefit}` slot of the Part 5.4 title template,
+   * `{Tool Name} — {benefit} | {Brand}`, in 50–60 characters total.
+   *
+   * Keep it to two or three words — "No Upload, No Limit", not a
+   * sentence. The whole tagline does not fit once the tool name and the
+   * brand have taken their share, and a sliced tagline reads as a
+   * fragment. Omitted, `seo.ts` falls back to the tagline's first
+   * clause and drops it entirely if it will not fit.
+   */
+  titleBenefit?: string;
   /** 140–155 characters. Becomes the meta description. */
   description: string;
   /** Target queries. Feeds the search index and the keyword sheet export. */
@@ -285,6 +314,10 @@ export const guidePath = (t: { category: string; slug: string }): string =>
  * quietly shipping. This is the CI check from Part 6.10 done in-process,
  * with no extra test tooling.
  */
+/** Option keys that must never round-trip through a URL. See below. */
+const SECRET_KEY_PATTERN =
+  /(^|[^a-z])(pass(phrase|word|wd)?|secret|token|apikey|api_key|privatekey|private_key|credential|salt)([^a-z]|$)/i;
+
 export function validateTool(t: ToolDefinition<never, never>): string[] {
   const errors: string[] = [];
   const at = `${t.category}/${t.slug}`;
@@ -319,6 +352,20 @@ export function validateTool(t: ToolDefinition<never, never>): string[] {
   for (const o of t.options) {
     if (keys.has(o.key)) errors.push(`${at}: duplicate option key "${o.key}"`);
     keys.add(o.key);
+
+    /**
+     * An option that holds a credential must say so, because the default
+     * behaviour — persisting to the query string — is exactly wrong for
+     * one. This catches the case where a future tool adds a passphrase
+     * field and forgets the flag, which is silent, invisible in review,
+     * and leaks the secret into browser history on first keystroke.
+     */
+    if (o.type === 'text' && !o.secret && SECRET_KEY_PATTERN.test(o.key)) {
+      errors.push(
+        `${at}: option "${o.key}" looks like a credential but is not marked \`secret: true\` — ` +
+          `without it the value is written to the URL. Mark it, or rename the key if it holds nothing sensitive.`,
+      );
+    }
   }
 
   /**

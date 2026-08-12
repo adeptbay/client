@@ -19,14 +19,13 @@ export default function PrivacyPage() {
       lead="The short version: tools marked “runs in your browser” never send us your data, because there is no server involved."
       updated="2026-08-08"
     >
-      <div className="rounded-xl border border-warn-line bg-warn-soft px-4 py-3 not-prose">
-        <p className="text-[13px] leading-relaxed text-fg-muted">
-          <strong className="text-fg">Before launch:</strong> have this reviewed by a lawyer in your
-          jurisdiction before publishing. It is written to be accurate about how this software
-          actually behaves, which is a necessary condition for a privacy policy and not a sufficient
-          one.
-        </p>
-      </div>
+      {/* OPERATOR NOTE — not rendered, deliberately.
+          This policy is accurate about how the software behaves, which
+          is necessary and not sufficient. It still needs review by a
+          lawyer in the operating jurisdiction (Stage 12 of
+          docs/PROJECT-CHECKLIST.md). The note used to be a visible
+          banner, which advertised to visitors and to AdSense review
+          that the policy was an unreviewed draft. */}
 
       <h2>1. Who we are</h2>
       <p>

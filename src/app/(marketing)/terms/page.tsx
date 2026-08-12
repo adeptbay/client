@@ -19,12 +19,13 @@ export default function TermsPage() {
       lead="Use the tools for anything lawful. Do not attack the service or use it to harm someone. We give no warranty."
       updated="2026-08-08"
     >
-      <div className="rounded-xl border border-warn-line bg-warn-soft px-4 py-3 not-prose">
-        <p className="text-[13px] leading-relaxed text-fg-muted">
-          <strong className="text-fg">Before launch:</strong> have a lawyer in your jurisdiction
-          review this. It is a plain-language starting point, not legal advice.
-        </p>
-      </div>
+      {/* OPERATOR NOTE — not rendered, deliberately.
+          These terms are a plain-language starting point and must be
+          reviewed by a lawyer in the operating jurisdiction. That review
+          is Stage 12 of docs/PROJECT-CHECKLIST.md. The note used to be a
+          visible banner on this page, which told every visitor — and
+          every AdSense reviewer — that the site's legal pages were an
+          unreviewed draft. Keep the obligation, not the disclosure. */}
 
       <h2>1. Agreement</h2>
       <p>

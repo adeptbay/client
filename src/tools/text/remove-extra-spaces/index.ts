@@ -27,6 +27,7 @@ export default defineTool<string, Options>({
 
   name: 'Remove Extra Spaces',
   tagline: 'Strip extra spaces — and the invisible characters that broke your text in the first place.',
+  titleBenefit: 'And Invisible Characters',
   description:
     'Collapse extra spaces, trim lines and remove blank lines. Also finds the invisible characters a Word or PDF paste leaves behind, and tells you exactly which ones.',
   keywords: [

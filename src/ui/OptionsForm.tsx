@@ -15,11 +15,70 @@
  * slightly different ones.
  */
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import type { OptionValue, ToolOption } from '@core/tool';
 import { Field, Input, Select, Slider, Switch, Textarea, cx } from './primitives';
 
 export type OptionValues = Record<string, OptionValue>;
+
+/**
+ * A masked field with a reveal toggle.
+ *
+ * Masking alone is the wrong trade here. On the encryptor a mistyped
+ * passphrase is not a login failure you retry — it is ciphertext nobody
+ * can ever open, and the tool says so on the page. So the value is
+ * hidden by default, because it is a secret in a screenshot and in a
+ * screen share, and revealable on demand, because the user has to be
+ * able to check it before committing.
+ */
+function SecretField({
+  id,
+  option,
+  value,
+  onChange,
+}: {
+  id: string;
+  option: Extract<ToolOption, { type: 'text' }>;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const [revealed, setRevealed] = useState(false);
+
+  return (
+    <Field label={option.label} htmlFor={id} help={option.help}>
+      <div className="relative">
+        <Input
+          id={id}
+          type={revealed ? 'text' : 'password'}
+          // A one-shot secret, not a credential worth storing.
+          autoComplete="off"
+          data-1p-ignore=""
+          value={value}
+          placeholder={option.placeholder}
+          maxLength={option.maxLength}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          aria-describedby={option.help ? `${id}-help` : undefined}
+          onChange={(e) => onChange(e.target.value)}
+          className="pr-16"
+        />
+        <button
+          type="button"
+          onClick={() => setRevealed((v) => !v)}
+          aria-controls={id}
+          aria-pressed={revealed}
+          className="absolute right-1 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-[11px]
+                     font-medium uppercase tracking-wider text-fg-subtle
+                     hover:bg-sunken hover:text-fg focus-visible:outline-2
+                     focus-visible:outline-offset-2 focus-visible:outline-brand"
+        >
+          {revealed ? 'Hide' : 'Show'}
+        </button>
+      </div>
+    </Field>
+  );
+}
 
 export const defaultValues = (options: ToolOption[]): OptionValues =>
   Object.fromEntries(options.map((o) => [o.key, o.default]));
@@ -144,6 +203,17 @@ export function OptionsForm({
               );
 
             case 'text':
+              if (option.secret) {
+                return (
+                  <SecretField
+                    key={option.key}
+                    id={id}
+                    option={option}
+                    value={String(values[option.key] ?? option.default)}
+                    onChange={(next) => set(option.key, next)}
+                  />
+                );
+              }
               return (
                 <Field key={option.key} label={option.label} htmlFor={id} help={option.help}>
                   <Input
@@ -195,11 +265,21 @@ export function OptionsForm({
    Options live in the query string so a configured tool is a shareable
    link. Only values that differ from the default are written, which
    keeps the canonical URL clean — and `robots.txt` disallows crawling
-   parameterised URLs so this never creates duplicate pages (Part 5.9). */
+   parameterised URLs so this never creates duplicate pages (Part 5.9).
+
+   Secrets are exempt in both directions. A passphrase in the address
+   bar survives in browser history, profile sync, screen shares and
+   screenshots long after the tab is closed, and "share this link"
+   would hand it to the recipient. Reading one back off the URL is the
+   same hole in reverse: it lets a crafted link pre-seed a passphrase.
+   `secret: true` on the option is the whole opt-out.                  */
+
+const isSecret = (o: ToolOption): boolean => o.type === 'text' && o.secret === true;
 
 export function optionsToQuery(options: ToolOption[], values: OptionValues): string {
   const params = new URLSearchParams();
   for (const o of options) {
+    if (isSecret(o)) continue;
     const v = values[o.key];
     if (v === undefined || v === o.default) continue;
     params.set(o.key, String(v));
@@ -212,6 +292,7 @@ export function optionsFromQuery(options: ToolOption[], search: string): OptionV
   const out = defaultValues(options);
 
   for (const o of options) {
+    if (isSecret(o)) continue;
     const raw = params.get(o.key);
     if (raw === null) continue;
 

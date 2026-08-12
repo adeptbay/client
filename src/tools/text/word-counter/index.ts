@@ -12,6 +12,7 @@ export default defineTool<string, Options>({
 
   name: 'Word Counter',
   tagline: 'Words, characters, sentences and reading time — updated as you type.',
+  titleBenefit: 'Words, Characters, Reading Time',
   description:
     'Count words, characters, sentences, paragraphs and reading time instantly. Handles Bangla, Chinese, Arabic and emoji correctly, and never uploads your text.',
   keywords: ['word counter', 'character count', 'count words online', 'word count tool'],

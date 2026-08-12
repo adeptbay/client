@@ -15,6 +15,7 @@ export default defineTool<string, Options>({
 
   name: 'UUID Generator',
   tagline: 'UUID v4, UUID v7, ULID and NanoID — generated in your browser.',
+  titleBenefit: 'v4, v7, ULID and NanoID',
   description:
     'Generate UUID v4, time-sortable UUID v7, ULID or NanoID in bulk. All values come from the Web Crypto random source, never from Math.random.',
   keywords: ['uuid generator', 'guid generator', 'uuid v4', 'uuid v7 generator', 'ulid generator'],

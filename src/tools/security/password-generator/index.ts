@@ -19,6 +19,7 @@ export default defineTool<string, Options>({
 
   name: 'Password Generator',
   tagline: 'Strong passwords from your browser’s cryptographic random source — never sent anywhere.',
+  titleBenefit: 'Strong, Random, Offline',
   description:
     'Generate strong random passwords with the entropy shown in bits. Uses Web Crypto with rejection sampling, so every character is uniformly distributed.',
   keywords: ['password generator', 'strong password generator', 'random password', 'secure password generator'],

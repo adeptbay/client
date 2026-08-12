@@ -16,6 +16,7 @@ export default defineTool<string, Options>({
 
   name: 'Hash Generator',
   tagline: 'SHA-256, SHA-512 and HMAC, computed by your browser’s native crypto.',
+  titleBenefit: 'SHA-256, SHA-512 and HMAC',
   description:
     'Generate SHA-1, SHA-256, SHA-384 and SHA-512 hashes, or an HMAC signature. Uses the Web Crypto API, so the work is native and your input never leaves the page.',
   keywords: ['sha256 hash generator', 'hash generator', 'sha512 generator', 'hmac generator', 'checksum generator'],
@@ -71,6 +72,8 @@ export default defineTool<string, Options>({
       type: 'text',
       label: 'HMAC secret',
       default: '',
+      // A webhook signing key. Never write it to the URL.
+      secret: true,
       placeholder: 'Shared secret key',
       showIf: { key: 'hmac', equals: true },
     },

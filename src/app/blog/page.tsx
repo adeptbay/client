@@ -63,7 +63,6 @@ export default function BlogIndex() {
         </Link>
         .
       </p>
-      {/* hello world  */}
     </div>
   );
 }

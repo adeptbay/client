@@ -14,6 +14,7 @@ export default defineTool<string, Options>({
 
   name: 'Percentage Calculator',
   tagline: 'Six percentage questions, each answered with the formula shown.',
+  titleBenefit: 'With the Formula Shown',
   description:
     'Work out percentages, increases, decreases and percentage change — and see the substituted formula, so you can show the working to whoever asked.',
   keywords: [

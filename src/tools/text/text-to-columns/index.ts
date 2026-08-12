@@ -23,6 +23,7 @@ export default defineTool<string, Options>({
 
   name: 'Text to Columns',
   tagline: 'Split delimited text into columns — with a real CSV parser, so quoted fields survive.',
+  titleBenefit: 'Real CSV Parsing',
   description:
     'Split text by comma, tab, semicolon or pipe and convert it to CSV, JSON, Markdown or SQL. Handles quoted fields containing the delimiter, which a plain split does not.',
   keywords: [

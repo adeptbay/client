@@ -12,6 +12,7 @@ export default defineTool<string, Options>({
 
   name: 'Text Reverser',
   tagline: 'Reverse characters, words or lines — without destroying emoji, flags or Indic script.',
+  titleBenefit: 'Emoji and Indic Script Safe',
   description:
     'Reverse text by character, word or line. Uses Unicode grapheme clusters, so emoji, flags and combining accents survive instead of being scrambled.',
   keywords: ['reverse text', 'text reverser', 'backwards text generator', 'reverse words online'],

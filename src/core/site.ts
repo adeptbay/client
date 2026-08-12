@@ -10,7 +10,30 @@ function resolveSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (explicit) return explicit.replace(/\/+$/, '');
 
-  // Vercel injects this on production deployments.
+  /**
+   * Fail the production build rather than ship the wrong canonical.
+   *
+   * Every canonical, sitemap entry, OG image URL and schema `@id` on
+   * this site is built from this one value. If it silently falls back
+   * to the generated *.vercel.app host, the site tells Google that the
+   * Vercel subdomain is the original and adeptbay.com is the copy — and
+   * every link earned to the real domain flows to a host the business
+   * does not own. That mistake is invisible in a green build and
+   * expensive to unwind once indexed, so it is a build error.
+   *
+   * Preview and development deployments fall through deliberately:
+   * there the generated host IS the correct host.
+   */
+  if (process.env.VERCEL_ENV === 'production') {
+    throw new Error(
+      'NEXT_PUBLIC_SITE_URL is not set on this production deployment.\n' +
+        'Set it to the canonical origin (https://adeptbay.com) in the Vercel project\n' +
+        'environment variables and redeploy. NEXT_PUBLIC_* values are inlined at build\n' +
+        'time, so setting it after the build has run is not enough.',
+    );
+  }
+
+  // Vercel injects this on preview deployments.
   const vercel = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
   if (vercel) return `https://${vercel}`;
 

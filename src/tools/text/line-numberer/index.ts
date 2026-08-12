@@ -28,6 +28,7 @@ export default defineTool<string, Options>({
 
   name: 'Line Numberer',
   tagline: 'Add line numbers — or strip the ones you pasted in by accident.',
+  titleBenefit: 'Add or Strip Line Numbers',
   description:
     'Add numbers to every line with a custom start, step, padding and separator. Also strips existing line numbers — what you need after copying from a code sample.',
   keywords: [

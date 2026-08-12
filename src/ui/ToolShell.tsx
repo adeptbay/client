@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Category } from '@core/categories';
 import type { AnyTool } from '@core/registry';
+import { flags } from '@core/flags';
 import { guidePath, toMeta } from '@core/tool';
 import { AdSlot } from './AdSlot';
 import { Badge } from './primitives';
@@ -74,7 +75,11 @@ export function ToolShell({
           )}
           <Badge>No sign-up</Badge>
           <Badge>No file limit</Badge>
-          {tool.apiEnabled && <Badge>API available</Badge>}
+          {/* `apiEnabled` says the tool is *eligible* for the public API.
+              The API itself ships behind a flag (Part 10), so until that
+              flag is on this badge would advertise an endpoint that 404s
+              on 20 of the 22 live pages. Both conditions, or no badge. */}
+          {flags.api && tool.apiEnabled && <Badge>API available</Badge>}
         </div>
       </header>
 

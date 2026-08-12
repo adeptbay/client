@@ -14,6 +14,7 @@ export default defineTool<string, Options>({
 
   name: 'Text Encryptor',
   tagline: 'AES-256-GCM with a properly derived key — encrypted in your browser, never transmitted.',
+  titleBenefit: 'AES-256-GCM in Your Browser',
   description:
     'Encrypt and decrypt text with AES-256-GCM and PBKDF2 key derivation at 600,000 iterations. Authenticated, so tampering is detected, and it runs entirely on your device.',
   keywords: [
@@ -61,6 +62,9 @@ export default defineTool<string, Options>({
       type: 'text',
       label: 'Passphrase',
       default: '',
+      // Masked, and never written to the URL. The tool would otherwise
+      // put the passphrase in the address bar and in browser history.
+      secret: true,
       placeholder: 'at least 8 characters — longer is better',
       help: 'Everything depends on this. There is no recovery: lose it and the text is gone.',
     },

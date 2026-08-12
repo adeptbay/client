@@ -19,7 +19,21 @@ import type { AnyTool } from './registry';
 
 type Json = Record<string, unknown>;
 
-export const jsonLd = (data: Json | Json[]): string => JSON.stringify(data);
+/**
+ * Serialise for injection into a <script type="application/ld+json">.
+ *
+ * The `<` escape is not optional. This output goes through
+ * `dangerouslySetInnerHTML`, and a bare `</script>` anywhere inside a
+ * tool's FAQ, tagline or InfoGain table would close the tag early and
+ * spill the rest of the JSON into the document as markup. `<` is
+ * valid JSON, parses back to the same string, and makes the sequence
+ * unconstructible. `&` and `>` are escaped on the same principle.
+ */
+export const jsonLd = (data: Json | Json[]): string =>
+  JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
 
 /* ── Brand entity. Homepage only. Part 5.10 — AI engines cite sources
       with an established identity, so this is the entity anchor.      */
@@ -57,11 +71,20 @@ export function websiteSchema(): Json {
     description: site.description,
     publisher: { '@id': absoluteUrl('/#organization') },
     inLanguage: 'en',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: { '@type': 'EntryPoint', urlTemplate: absoluteUrl('/all-tools?q={search_term_string}') },
-      'query-input': 'required name=search_term_string',
-    },
+    /**
+     * No `potentialAction` / SearchAction.
+     *
+     * Two independent reasons. Google retired the sitelinks search box
+     * rich result in November 2024, so the markup no longer produces
+     * anything. And the target it declared — /all-tools?q={term} — was
+     * never implemented: /all-tools reads no search params, and
+     * robots.txt disallows parameterised URLs. Schema that describes a
+     * capability the site does not have is a correctness problem
+     * regardless of whether anything currently reads it.
+     *
+     * Site search is the ⌘K palette, which is a client-side index and
+     * has no crawlable results URL to point at.
+     */
   };
 }
 
