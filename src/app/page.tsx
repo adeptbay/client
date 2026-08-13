@@ -45,7 +45,7 @@ export default function HomePage() {
           <Badge tone="brand">{count} tools live · more every week</Badge>
 
           <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-fg sm:text-5xl">
-            Every everyday tool, in one bay.
+            Every tool you need, in one bay.
           </h1>
 
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg">

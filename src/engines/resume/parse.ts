@@ -472,7 +472,7 @@ function isBulletLine(line: ResumeLine): boolean {
  * same line as the title, Word CVs put it on the next line, and Canva
  * templates use bold with no dates at all.
  */
-function extractRoles(section: ResumeLine[], anyGlyphs: boolean): ResumeRole[] {
+function extractRoles(section: ResumeLine[], anyGlyphs: boolean, source: SectionKind): ResumeRole[] {
   const roles: ResumeRole[] = [];
   let current: { header: string; dates: DateRange | null; body: ResumeLine[] } | null = null;
 
@@ -496,6 +496,7 @@ function extractRoles(section: ResumeLine[], anyGlyphs: boolean): ResumeRole[] {
     }
 
     roles.push({
+      source,
       header: current.header.trim(),
       title,
       organisation,
@@ -698,13 +699,13 @@ export function parseResume(
     if (heading.kind !== 'experience' && heading.kind !== 'projects' && heading.kind !== 'volunteer') return;
     const from = heading.index + 1;
     const to = headings[i + 1]?.index ?? clean.length;
-    roles.push(...extractRoles(clean.slice(from, to), anyGlyphs));
+    roles.push(...extractRoles(clean.slice(from, to), anyGlyphs, heading.kind));
   });
 
   /* A CV with no recognisable headings still has content. Read the whole
      document as one block rather than reporting zero of everything. */
   if (headings.length === 0) {
-    roles.push(...extractRoles(clean, anyGlyphs));
+    roles.push(...extractRoles(clean, anyGlyphs, 'experience'));
   }
 
   // Re-index bullets against their final role positions.

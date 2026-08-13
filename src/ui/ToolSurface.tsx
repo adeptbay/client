@@ -42,6 +42,9 @@ const CUSTOM_SURFACES: Record<string, ComponentType> = {
   'resume-checker': lazy(() =>
     import('./tools/resume-checker/ResumeChecker').then((m) => ({ default: m.ResumeChecker })),
   ),
+  'resume-builder': lazy(() =>
+    import('./tools/resume-builder/ResumeBuilder').then((m) => ({ default: m.ResumeBuilder })),
+  ),
 };
 
 export function ToolSurface({ tool }: { tool: ToolMeta }) {

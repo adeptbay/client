@@ -234,13 +234,12 @@ export default defineTool<File[], Options>({
   },
 
   /**
-   * `resume-builder` is deliberately absent from both lists until it
-   * goes live. It is the natural sibling and belongs at the top of each
-   * — but `relatedTools()` drops non-live targets silently, so declaring
-   * it now buys a link that never renders and an orphan-audit failure
-   * that does. Put it back, first in both, on the day the builder ships.
+   * The builder leads both lists now that it is live. It is the natural
+   * next step from a report full of findings — "fix these" is what the
+   * checker leaves the reader wanting, and this is where they fix them.
    */
   related: [
+    'resume-builder',
     'readability-checker',
     'word-counter',
     'character-frequency-counter',
@@ -248,9 +247,8 @@ export default defineTool<File[], Options>({
     'find-and-replace',
     'remove-extra-spaces',
     'case-converter',
-    'sort-lines',
   ],
-  nextSteps: ['readability-checker', 'word-counter', 'text-diff'],
+  nextSteps: ['resume-builder', 'readability-checker', 'word-counter'],
 
   added: '2026-08-12',
   updated: '2026-08-13',

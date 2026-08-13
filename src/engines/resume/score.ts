@@ -622,6 +622,10 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
     weight: 22,
     severity: 'critical',
     run: ({ parsed }) => {
+      // Projects and volunteering are dated by convention only. Holding
+      // them to the same rule as employment invents an omission.
+      const jobs = parsed.roles.filter((r) => r.source === 'experience');
+
       if (parsed.roles.length === 0) {
         return {
           ratio: 0,
@@ -631,17 +635,19 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
           evidence: [],
         };
       }
-      const dated = parsed.roles.filter((r) => r.dates !== null).length;
-      const ratio = dated / parsed.roles.length;
+      if (jobs.length === 0) return { ratio: null };
+
+      const dated = jobs.filter((r) => r.dates !== null).length;
+      const ratio = dated / jobs.length;
       if (ratio === 1) return { ratio: 1, win: 'Every role is dated — the tenure calculation will be right.' };
 
       return {
         ratio,
-        title: `${parsed.roles.length - dated} of ${parsed.roles.length} roles have no dates`,
+        title: `${jobs.length - dated} of ${plural(jobs.length, 'role')} have no dates`,
         detail:
           'Tenure is computed from these dates and is one of the first things filtered on. An undated role contributes nothing to your years of experience, so the CV reads as shorter than your career.',
         fix: 'Add "Mon YYYY – Mon YYYY" to every role, and "– Present" to the current one. Use the same format for all of them.',
-        evidence: sample(parsed.roles.filter((r) => r.dates === null).map((r) => r.header)),
+        evidence: sample(jobs.filter((r) => r.dates === null).map((r) => r.header)),
       };
     },
   },
@@ -854,7 +860,9 @@ const IMPACT_CHECKS: CheckSpec[] = [
 
       return {
         ratio: band(share, 0.2, 0.85),
-        title: `${bullets.length - strong.length} bullets do not start with an action verb`,
+        title: `${plural(bullets.length - strong.length, 'bullet')} ${
+          bullets.length - strong.length === 1 ? 'does' : 'do'
+        } not start with an action verb`,
         detail:
           'The first word of a bullet is the one that gets read in a scan. A noun or a hedge there wastes the position, and a gerund ("Managing…") reads as a job description rather than a thing you did.',
         fix: 'Start each one with a past-tense verb: Led, Built, Cut, Launched, Negotiated, Rebuilt. Delete the words in front of it.',
@@ -989,7 +997,7 @@ const IMPACT_CHECKS: CheckSpec[] = [
         title:
           relevant.length === 0
             ? `Nothing measured in the terms ${department.label.toLowerCase()} is judged on`
-            : `Only ${plural(relevant.length, 'bullet')} states a result this field recognises`,
+            : `Only ${plural(relevant.length, 'bullet')} ${agree(relevant.length, 'state')} a result this field recognises`,
         detail: `Screeners in this field scan for a specific vocabulary — ${department.outcomeWords
           .slice(0, 6)
           .join(', ')} — and skip past achievements phrased outside it. Your bullets may describe real results without using any of those words, in which case the work is invisible rather than absent.`,

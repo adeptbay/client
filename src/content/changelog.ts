@@ -28,6 +28,20 @@ export const CHANGE_LABELS: Record<ChangeKind, string> = {
 export const changelog: ChangeEntry[] = [
   {
     date: '2026-08-13',
+    kind: 'added',
+    title: 'CV / Resume Builder — free PDF, no account, no export wall',
+    detail:
+      'The standard elsewhere is a free editor with the download behind a subscription: you spend an hour on your CV and meet the paywall at the end. This one assembles the document in your browser, saves the draft to your browser, and exports through your own print engine — so there is no server copy to charge you for releasing, and non-Latin names typeset correctly instead of coming out as boxes. Two single-column templates, a preview at true print size, and coaching on every bullet as you write it drawn from the CV Checker\'s own word lists, so a bullet this tool accepts is a bullet the checker scores well. The sample document comes back from the checker at 98/100.',
+  },
+  {
+    date: '2026-08-13',
+    kind: 'fixed',
+    title: 'The checker demanded dates on projects, which do not have them',
+    detail:
+      'Entries under a Projects heading were held to the same rule as employment, so a correctly built CV was told that "1 of 2 roles have no dates". Found by scoring the new builder\'s own output against the checker. Dates are now required of jobs only.',
+  },
+  {
+    date: '2026-08-13',
     kind: 'changed',
     title: 'The CV checker now returns two scores instead of one',
     detail:

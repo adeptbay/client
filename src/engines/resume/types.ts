@@ -60,6 +60,15 @@ export interface ResumeBullet {
 }
 
 export interface ResumeRole {
+  /**
+   * The section this entry was found under.
+   *
+   * Load-bearing for the dates check: a job without dates is a real
+   * omission, and a *project* without dates is normal. Without this the
+   * checker penalises a correctly-built CV for a convention that does
+   * not exist.
+   */
+  source: SectionKind;
   header: string;
   title: string | null;
   organisation: string | null;

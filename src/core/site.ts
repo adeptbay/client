@@ -47,7 +47,7 @@ export const site = {
   url: resolveSiteUrl(),
 
   /** Under 8 words — Step 02 item 14. */
-  tagline: 'Every everyday tool, in one bay',
+  tagline: 'Every tool you need, in one bay',
 
   description:
     'Fast, free online tools for developers, students and businesses. Most run entirely in your browser — no sign-up, no upload, no file size games.',
