@@ -175,6 +175,7 @@ export default defineTool<string, Options>({
     'remove-duplicate-lines',
     'sort-lines',
     'case-converter',
+    'resume-checker',
     'text-diff',
     'line-numberer',
     'text-to-columns',

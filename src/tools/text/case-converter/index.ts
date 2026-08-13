@@ -124,6 +124,7 @@ export default defineTool<string, Options>({
     'word-counter',
     'sort-lines',
     'remove-duplicate-lines',
+    'resume-checker',
     'readability-checker',
     'text-diff',
     'text-reverser',

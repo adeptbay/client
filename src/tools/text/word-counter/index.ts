@@ -124,6 +124,7 @@ export default defineTool<string, Options>({
   // the same (students and writers working to a limit), and "how far
   // over my 500-word cap am I" is the next question after this one.
   related: [
+    'resume-checker',
     'readability-checker',
     'case-converter',
     'remove-duplicate-lines',

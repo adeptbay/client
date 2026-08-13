@@ -27,6 +27,20 @@ export const CHANGE_LABELS: Record<ChangeKind, string> = {
 
 export const changelog: ChangeEntry[] = [
   {
+    date: '2026-08-13',
+    kind: 'added',
+    title: 'CV / Resume Checker — the Career division opens',
+    detail:
+      'Drop in a PDF and it is parsed in your browser the way an applicant tracking system parses it: objects, streams, fonts and content operators, with no upload and no third-party library. It then runs 38 named checks across seven weighted categories and reports each one against the line in your CV that caused it. It detects two-column layouts and shows, side by side, how the gutter scrambles your file when read straight across; it detects fonts with no character map, which look perfect on screen and paste as boxes; and it detects white-on-white keyword stuffing, which is grounds for discarding an application at most agencies. An optional AI review at the end is the only part that sends anything — it asks first, strips your name, email and phone before it does, and every bullet it rewrites is checked back against your real file so a paraphrase cannot reach you as a quotation.',
+  },
+  {
+    date: '2026-08-13',
+    kind: 'fixed',
+    title: 'A CV bullet reading "cut churn 34%" was scored as having no number',
+    detail:
+      'The pattern matching percentages required a word boundary after the "%", which cannot occur at the end of a clause — so the single most common way a CV states a result was invisible to the check that exists to find it. Present from the first day of the checker\'s development and caught before launch; no published score was affected.',
+  },
+  {
     date: '2026-08-12',
     kind: 'fixed',
     title: 'Passphrases were being written into the address bar',

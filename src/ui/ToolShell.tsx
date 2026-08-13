@@ -5,7 +5,7 @@ import { flags } from '@core/flags';
 import { guidePath, toMeta } from '@core/tool';
 import { AdSlot } from './AdSlot';
 import { Badge } from './primitives';
-import { ToolRunner } from './ToolRunner';
+import { ToolSurface } from './ToolSurface';
 import {
   Breadcrumb,
   FaqSection,
@@ -94,9 +94,13 @@ export function ToolShell({
         </div>
       </header>
 
-      {/* 3 + 4 · The tool, immediately usable. No ad above this point. */}
+      {/* 3 + 4 · The tool, immediately usable. No ad above this point.
+
+          ToolSurface is ToolRunner for every tool but the handful whose
+          result cannot survive being flattened into stats — see the note
+          in ToolSurface.tsx for the bar a tool has to clear to opt out. */}
       <div className="mt-6">
-        <ToolRunner tool={toMeta(tool)} />
+        <ToolSurface tool={toMeta(tool)} />
       </div>
 
       {/* 5 · Next step */}

@@ -121,6 +121,7 @@ export default defineTool<[string, string], Options>({
     'word-counter',
     'case-converter',
     'json-formatter',
+    'resume-checker',
     'readability-checker',
     'find-and-replace',
     'remove-extra-spaces',

@@ -120,6 +120,7 @@ export default defineTool<string, Options>({
   },
 
   related: [
+    'resume-checker',
     'word-counter',
     'case-converter',
     'text-diff',

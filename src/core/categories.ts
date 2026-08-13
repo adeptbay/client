@@ -170,8 +170,8 @@ export const categories: Category[] = [
     role: 'The highest-intent traffic on the site: the CPC of the business division with the volume of the student one, and the shortest path from a free tool to a paid one.',
     icon: 'M6 3h12v18H6zM12 9.3a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4M8.9 13.4c.3-1.7 1.6-2.8 3.1-2.8s2.8 1.1 3.1 2.8M9 17.5h6',
     order: 10,
-    // Both CV tools are still drafts. Remove this once one goes live.
-    navPin: true,
+    // The pin is gone: the CV / Resume Checker is live, so this division
+    // earns its place in the nav from `toolsInCategory` like every other.
   },
   {
     slug: 'student',
