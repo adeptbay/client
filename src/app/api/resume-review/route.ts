@@ -22,6 +22,7 @@ import {
   scrubIdentifiers,
   type ReviewInput,
 } from '@ai/resume-review';
+import { getDepartment } from '@engines/resume/departments';
 import { flags } from '@core/flags';
 
 export const dynamic = 'force-dynamic';
@@ -113,11 +114,20 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  /* Resolved from the catalogue by id, never taken from the request.
+     The persona and the outcome example go straight into the prompt, so
+     accepting them as free text would hand any caller a way to rewrite
+     the system instructions from the client. */
+  const department = getDepartment(str(body.department, 32));
+
   const input: ReviewInput = {
     resumeText,
     targetRole: str(body.targetRole, REVIEW_LIMITS.roleChars),
     jobAd: scrubIdentifiers(str(body.jobAd, REVIEW_LIMITS.jobAdChars)),
     seniority: str(body.seniority, 24) || 'unknown',
+    department: department?.label ?? '',
+    departmentPersona: department?.persona ?? '',
+    departmentOutcome: department?.outcomeExample ?? '',
     score: typeof body.score === 'number' ? Math.round(body.score) : 0,
     grade: str(body.grade, 3),
     knownIssues: strList(body.knownIssues, REVIEW_LIMITS.issues, 160),

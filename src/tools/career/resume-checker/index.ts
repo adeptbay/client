@@ -14,8 +14,10 @@
  */
 
 import { defineTool, ToolError } from '@core/tool';
+import { DEPARTMENTS, type DepartmentId } from '@engines/resume/departments';
 
 interface Options {
+  department: DepartmentId | '';
   targetRole: string;
   jobAd: string;
   seniority: 'auto' | 'student' | 'entry' | 'mid' | 'senior' | 'executive';
@@ -62,6 +64,16 @@ export default defineTool<File[], Options>({
 
   options: [
     {
+      key: 'department',
+      type: 'enum',
+      label: 'Department',
+      default: '',
+      // Sourced from the catalogue so the option list cannot drift from
+      // the checks that read it.
+      values: DEPARTMENTS.map((d) => ({ value: d.id, label: d.label })),
+      help: 'Decides which skills, links, sections and kinds of result are expected. A sales CV and a clinical CV are not judged the same way.',
+    },
+    {
       key: 'targetRole',
       type: 'text',
       label: 'Role you are applying for',
@@ -105,9 +117,9 @@ export default defineTool<File[], Options>({
         'Not the Word file, not an export made for this — the file a recruiter receives. Half of what is checked here is how that specific file parses, so a different export is a different result.',
     },
     {
-      title: 'Name the role, and paste the advert if you have it',
+      title: 'Pick the department you are applying to',
       detail:
-        'The role is checked against your headline. The advert turns a generic score into a specific one: which of its own repeated terms your CV never uses once. The score updates as you type — there is no second upload.',
+        'This is the only required field, because it decides what counts as evidence. "Closed £1.4m against a £1m quota" is a strong bullet in sales and irrelevant on a clinical CV; a missing portfolio link is fatal in design and means nothing in accounting. Everything else — target role, career stage, the job advert — is optional and only sharpens the result.',
     },
     {
       title: 'Fix the critical findings before anything else',
@@ -149,7 +161,11 @@ export default defineTool<File[], Options>({
     },
     {
       q: 'Does this work for non-technical CVs?',
-      a: 'Yes. The checks are about evidence, structure and parsing, none of which are industry-specific, and the skills recogniser covers healthcare, finance, education, marketing, operations and trades alongside software. Section headings must be in English.',
+      a: 'Yes — that is what the department selector is for. Pick your field and the checker changes what it expects: a nurse is checked for registrations and caseload, an account executive for quota attainment, a designer for a portfolio link, a researcher for publications. Only the parsing checks are the same for everyone, because a parser does not care what you do.',
+    },
+    {
+      q: 'What does choosing a department actually change?',
+      a: 'Four things: which skills a recruiter in that field searches for, which link they open first, which extra section is expected, and what a result is phrased as. The same front-end CV scores 83 as engineering and 80 as sales in our own testing — not because it got worse, but because it never states a quota, a pipeline figure or a win rate. Leave the field unselected and every department-specific check stays neutral rather than guessing.',
     },
     {
       q: 'Will the AI rewrite my CV for me?',
@@ -163,14 +179,16 @@ export default defineTool<File[], Options>({
 
   infoGain: {
     summary:
-      'Most CV scorers show a percentage and sell the explanation. This one parses the PDF in your browser the way an applicant tracking system does — fonts, columns, text layer and all — then reports 38 named checks across seven weighted categories, each one quoting the line in your CV that cost the points and saying what to write instead.',
+      'Most CV scorers show a percentage and sell the explanation. This one parses the PDF in your browser the way an applicant tracking system does — fonts, columns, text layer and all — then reports 43 named checks across seven weighted categories, judged against the department you are applying to, each one quoting the line in your CV that cost the points.',
     benchmarks: [
-      { label: 'Checks run', value: '38', note: 'across parsing, contact, structure, evidence, keywords, language and length' },
+      { label: 'Checks run', value: '43', note: 'across parsing, contact, structure, evidence, keywords, language and length' },
+      { label: 'Departments', value: '15', note: 'each with its own expected skills, link, section and definition of a result' },
       { label: 'Weighting', value: 'parse 25 · impact 22 · structure 15 · keywords 15 · contact 10 · language 8 · length 5' },
       { label: 'Parse gate', value: 'caps the total', note: 'a CV a machine cannot read cannot average its way to a pass on wording' },
       { label: 'Typical run', value: 'under 1s', note: 'for a two-page CV, entirely on your device' },
     ],
     supports: [
+      'Department-aware scoring across 15 fields — the skills searched for, the link opened first, the section expected and what counts as a result all change with the field, because a sales CV and a clinical CV are not the same document scored twice',
       'PDF text extraction with no upload and no third-party library — objects, streams, fonts and content operators, so a parse failure is reported rather than quietly recovered',
       'Two-column detection, with a side-by-side view of how the gutter scrambles your CV when read straight across',
       'Hidden-text detection — white-on-white and invisible render modes, the keyword stuffing that gets applications discarded',
@@ -249,6 +267,7 @@ export default defineTool<File[], Options>({
     const { checkResumePdf } = await import('@engines/resume');
 
     const report = await checkResumePdf(await file.arrayBuffer(), {
+      department: options.department,
       targetRole: options.targetRole,
       jobAd: options.jobAd,
       seniority: options.seniority,

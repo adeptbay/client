@@ -31,6 +31,7 @@
  */
 
 import type { PdfExtraction } from '@engines/pdf';
+import { getDepartment, LINK_LABEL, type Department, type DepartmentId } from './departments';
 import { KNOWN_SKILLS, STOP_WORDS, isKnownSkill } from './vocabulary';
 import type {
   CategoryId,
@@ -51,12 +52,20 @@ export interface ScoreOptions {
   jobAd: string;
   /** Overrides the inferred level when the user knows better. */
   seniority: Seniority | 'auto';
+  /**
+   * The field this CV is aimed at. Empty means "not stated", and every
+   * department-aware check returns neutral rather than guessing — a
+   * checker that assumes software engineering marks down every nurse
+   * who uses it.
+   */
+  department: DepartmentId | '';
 }
 
 export const DEFAULT_SCORE_OPTIONS: ScoreOptions = {
   targetRole: '',
   jobAd: '',
   seniority: 'auto',
+  department: '',
 };
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -79,6 +88,8 @@ interface Context {
   options: ScoreOptions;
   seniority: Seniority;
   keywords: KeywordMatch[] | null;
+  /** Null when the user did not state a field. Checks stay neutral then. */
+  department: Department | null;
 }
 
 interface CheckSpec {
@@ -112,6 +123,23 @@ const plural = (n: number, one: string, many = `${one}s`): string => `${n} ${n =
 const agree = (n: number, verb: string): string => (n === 1 ? `${verb}s` : verb);
 const agreeBe = (n: number): string => (n === 1 ? 'is' : 'are');
 const agreeHave = (n: number): string => (n === 1 ? 'has' : 'have');
+
+/**
+ * The CV flattened for phrase lookup.
+ *
+ * Punctuation becomes space so "React, TypeScript" matches both, but
+ * `+ # . / -` survive because dropping them would lose c++, c#, node.js,
+ * ci/cd and a-levels — which is most of what gets searched for.
+ */
+const haystackOf = (parsed: ParsedResume): string =>
+  ` ${`${parsed.text} ${parsed.skills.join(' ')}`
+    .toLowerCase()
+    .replace(/[^a-z0-9+#./ -]/g, ' ')
+    .replace(/\s+/g, ' ')} `;
+
+/** Whole-phrase presence, tolerating a plural. */
+const mentions = (haystack: string, phrase: string): boolean =>
+  haystack.includes(` ${phrase} `) || haystack.includes(` ${phrase}s `);
 
 /* ═══════════════════════════════════════════════════════════════════
    Length expectations
@@ -485,6 +513,38 @@ const CONTACT_CHECKS: CheckSpec[] = [
       };
     },
   },
+  {
+    id: 'department-link',
+    label: 'The link this field expects first',
+    weight: 12,
+    severity: 'important',
+    run: ({ parsed, department }) => {
+      // 'profile' is already covered by `profile-link` above, and 'none'
+      // means the field has no such convention. Charging for either here
+      // would be double-counting or inventing a standard.
+      if (!department || department.link === 'none' || department.link === 'profile') {
+        return { ratio: 1 };
+      }
+
+      const { github, website } = parsed.contact;
+      const has = department.link === 'repository' ? github !== null || website !== null : website !== null;
+      if (has) return { ratio: 1, win: `Your ${LINK_LABEL[department.link]} is linked as readable text.` };
+
+      return {
+        ratio: 0,
+        title:
+          department.link === 'portfolio'
+            ? 'No portfolio link — in this field that is the first thing opened'
+            : 'No repository or personal site linked',
+        detail:
+          department.link === 'portfolio'
+            ? `A ${department.label.toLowerCase()} screener judges the work, not the description of it. Without a link there is nothing to judge, and the CV is competing on adjectives against people who attached the work.`
+            : 'Technical screeners open the code before they read the bullets. A repository or a personal site is the cheapest evidence on the page.',
+        fix: `Put the full URL under your name as plain text — yourname.com or github.com/you. An icon linked to it does not survive parsing, because a parser reads text, not pictures.`,
+        evidence: [],
+      };
+    },
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -662,6 +722,49 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
       };
     },
   },
+  {
+    id: 'department-section',
+    label: 'The section this field expects',
+    weight: 12,
+    severity: 'important',
+    run: ({ parsed, department, seniority }) => {
+      if (!department || department.section === null) return { ratio: 1 };
+
+      const wanted = department.section;
+      if (parsed.sections.some((s) => s.kind === wanted)) {
+        return { ratio: 1, win: `Your ${wanted} section is where a ${department.label} screener looks for it.` };
+      }
+
+      // Projects earn their place while the work history is thin. Asking a
+      // fifteen-year engineer for a projects section is asking them to pad.
+      if (wanted === 'projects' && seniority !== 'student' && seniority !== 'entry') {
+        return { ratio: 1 };
+      }
+
+      const COPY: Record<'certifications' | 'publications' | 'projects', { detail: string; fix: string }> = {
+        certifications: {
+          detail: `In ${department.label.toLowerCase()} the qualification is often a gate rather than a bonus — screeners filter on it before reading anything else, and an unlisted licence reads as an absent one.`,
+          fix: 'Add a Certifications section listing each one with its issuing body and year, and put anything currently required to practise at the top.',
+        },
+        publications: {
+          detail: 'Research CVs are read publications-first. Without the list, the work has no citable record and the CV is judged only on job titles.',
+          fix: 'Add a Publications section in a consistent citation style, newest first, with your position in the author list visible.',
+        },
+        projects: {
+          detail: 'With limited work history, projects are the only place a reader can see what you can actually do.',
+          fix: 'Add a Projects section with two or three entries: what you built, what you used, and what the result was. Link each one.',
+        },
+      };
+
+      return {
+        ratio: 0.2,
+        title: `No ${wanted} section`,
+        detail: COPY[wanted].detail,
+        fix: COPY[wanted].fix,
+        evidence: sample(parsed.sections.map((s) => s.heading)),
+      };
+    },
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -826,6 +929,47 @@ const IMPACT_CHECKS: CheckSpec[] = [
       };
     },
   },
+  {
+    id: 'department-evidence',
+    label: 'Results stated in this field’s own terms',
+    weight: 14,
+    severity: 'critical',
+    run: ({ parsed, department }) => {
+      if (!department || department.outcomeWords.length === 0) return { ratio: 1 };
+      if (parsed.bullets.length === 0) return { ratio: 0.5 };
+
+      // A number alone is not evidence here — "12 years" is a number. It
+      // has to be attached to something this field actually measures.
+      const relevant = parsed.bullets.filter((bullet) => {
+        if (!bullet.quantified) return false;
+        const lower = bullet.text.toLowerCase();
+        return department.outcomeWords.some((word) => lower.includes(word));
+      });
+
+      if (relevant.length >= 3) {
+        return {
+          ratio: 1,
+          win: `${relevant.length} bullets carry the kind of result a ${department.label} screener is scanning for.`,
+        };
+      }
+
+      return {
+        ratio: band(relevant.length, 0, 3),
+        title:
+          relevant.length === 0
+            ? `Nothing measured in the terms ${department.label.toLowerCase()} is judged on`
+            : `Only ${plural(relevant.length, 'bullet')} states a result this field recognises`,
+        detail: `Screeners in this field scan for a specific vocabulary — ${department.outcomeWords
+          .slice(0, 6)
+          .join(', ')} — and skip past achievements phrased outside it. Your bullets may describe real results without using any of those words, in which case the work is invisible rather than absent.`,
+        fix: `Rewrite two or three bullets so the outcome is named the way this field names it. For example: ${department.outcomeExample}.`,
+        evidence: sample(
+          parsed.bullets.filter((b) => !relevant.includes(b)).map((b) => b.text),
+          3,
+        ),
+      };
+    },
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -938,6 +1082,40 @@ const KEYWORD_CHECKS: CheckSpec[] = [
         detail: '"Familiar with Kubernetes" reads as "cannot use Kubernetes". The hedge is honest, but it spends a line to disqualify itself.',
         fix: 'Either claim it plainly and be ready for the question, or cut it and give the line to something you can defend.',
         evidence: sample(hedged, 3),
+      };
+    },
+  },
+  {
+    id: 'department-skills',
+    label: 'Skills this field is filtered on',
+    weight: 25,
+    severity: 'important',
+    run: ({ parsed, department }) => {
+      if (!department || department.coreSkills.length === 0) return { ratio: 1 };
+
+      const haystack = haystackOf(parsed);
+      const found = department.coreSkills.filter((skill) => mentions(haystack, skill));
+      const share = found.length / department.coreSkills.length;
+
+      // A third of the list is a well-covered CV. Nobody holds all of
+      // them, and demanding more would reward keyword stuffing over work.
+      if (share >= 0.3) {
+        return {
+          ratio: 1,
+          win: `${found.length} of the terms a ${department.label} recruiter searches on are already in your CV.`,
+        };
+      }
+
+      const missing = department.coreSkills.filter((skill) => !found.includes(skill));
+      return {
+        ratio: band(share, 0, 0.3),
+        title: `Your CV names ${found.length} of the ${department.coreSkills.length} skills this field is filtered on`,
+        detail:
+          'Recruiter searches in this field run on a small, predictable vocabulary. A CV that never writes those words down is excluded from the result set before anyone judges the work behind it.',
+        fix: `Add the ones you genuinely use — to the Skills section, and inside the bullet that proves each. Commonly searched here: ${missing
+          .slice(0, 10)
+          .join(', ')}.`,
+        evidence: [],
       };
     },
   },
@@ -1205,6 +1383,13 @@ const CATEGORIES: CategorySpec[] = [
   },
 ];
 
+/**
+ * How many named checks run. Derived rather than written down, so the
+ * number quoted in the UI and on the marketing copy cannot drift away
+ * from the number actually executed.
+ */
+export const TOTAL_CHECKS = CATEGORIES.reduce((sum, c) => sum + c.checks.length, 0);
+
 /* ═══════════════════════════════════════════════════════════════════
    Grades
    ═══════════════════════════════════════════════════════════════════ */
@@ -1235,8 +1420,9 @@ export function scoreResume(
   const seniority: Seniority = options.seniority === 'auto' ? parsed.seniority : options.seniority;
 
   const keywords = options.jobAd.trim().length >= 40 ? extractKeywords(options.jobAd, parsed.text) : null;
+  const department = getDepartment(options.department || undefined);
 
-  const ctx: Context = { parsed, doc, options, seniority, keywords };
+  const ctx: Context = { parsed, doc, options, seniority, keywords, department };
 
   const categories: CategoryResult[] = [];
   const findings: Finding[] = [];

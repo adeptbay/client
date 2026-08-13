@@ -43,6 +43,12 @@ export interface ReviewInput {
   targetRole: string;
   jobAd: string;
   seniority: string;
+  /** Department label, e.g. "Sales & Business Development". */
+  department: string;
+  /** Who that department's screener is, from the department catalogue. */
+  departmentPersona: string;
+  /** What a result looks like in that field — an anti-generic anchor. */
+  departmentOutcome: string;
   score: number;
   grade: string;
   /** Layer-2 finding titles, so the model adds instead of repeating. */
@@ -108,10 +114,13 @@ HARD RULES — breaking any of these makes your answer worthless
 6. NEVER use these phrases anywhere in your answer: results-driven, results-oriented, proven track record, team player, detail-oriented, hard-working, passionate about, self-motivated, excellent communication skills, dynamic, seasoned, fast learner. They are penalised elsewhere in this report and using them contradicts it.
 7. Do not repeat anything under ALREADY_REPORTED. The candidate has been told. Your value is what a checklist cannot see.
 8. The candidate's name, email and phone were removed before this text reached you. Do not comment on them and do not ask for them.
-9. Address the candidate as "you" and "your CV". No preamble, no sign-off, no markdown formatting inside the string values.
+9. Write to the person, not about them: "you" and "your CV", never "the candidate", "they" or "this applicant". No preamble, no sign-off, no markdown formatting inside the string values.
 
 WHAT ONLY YOU CAN SEE
 Rules have already checked the structure, the parsing, the verbs and the counting. What they cannot judge is whether this CV is convincing for this specific role: whether the seniority claimed matches the scope shown, whether the achievements are the ones this employer cares about, whether the story from job to job holds together, and what a screener would quietly assume that the candidate did not intend.
+
+DEPARTMENT
+If a DEPARTMENT is given, it is the lens for everything you write. Judge the evidence the way that field judges it and use its vocabulary — the same bullet is strong on a sales CV and irrelevant on a clinical one. Do not give advice that belongs to a different field.
 
 OUTPUT
 Return ONE JSON object and nothing else. No markdown fence. Exactly this shape:
@@ -132,11 +141,25 @@ Return ONE JSON object and nothing else. No markdown fence. Exactly this shape:
 Give 3 to 5 rewrites, choosing the bullets where the gap between what was done and what was written is widest.`;
 
 export function buildUserPrompt(input: ReviewInput): string {
-  const parts: string[] = [
+  const parts: string[] = [];
+
+  /* The department comes first and is phrased as an instruction rather
+     than a label, because it is the single strongest lever against a
+     generic review: it decides which evidence counts as evidence. */
+  if (input.department) {
+    parts.push(
+      `DEPARTMENT: ${input.department}`,
+      `READ THIS CV AS ${input.departmentPersona}.`,
+      `In this field a result is stated like this: ${input.departmentOutcome}. Judge the bullets against that standard, not against a generic one.`,
+      '',
+    );
+  }
+
+  parts.push(
     `TARGET_ROLE: ${input.targetRole || '(not specified — judge against the roles the CV itself claims)'}`,
     `CAREER_STAGE (inferred from the dates): ${input.seniority}`,
     `RULE_BASED_SCORE: ${input.score}/100 (grade ${input.grade})`,
-  ];
+  );
 
   if (input.knownIssues.length > 0) {
     parts.push(`\nALREADY_REPORTED — do not repeat these:\n${input.knownIssues.map((i) => `- ${i}`).join('\n')}`);
@@ -158,6 +181,15 @@ export function buildUserPrompt(input: ReviewInput): string {
   // The untrusted span is fenced and named, so the model has an
   // unambiguous boundary between our instructions and the document.
   parts.push(`\n<cv_text>\n${input.resumeText}\n</cv_text>`);
+
+  /* Repeated last on purpose. The register rule is in the system prompt
+     too, but a long document between the instruction and the generation
+     is exactly where it gets dropped, and "the candidate's background"
+     reads as a report written about someone rather than advice given to
+     them. Recency is cheaper than post-processing the model's prose. */
+  parts.push(
+    '\nWrite to this person directly as "you" and "your CV" — never "the candidate" or "they". Return only the JSON object.',
+  );
 
   return parts.join('\n');
 }

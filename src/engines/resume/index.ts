@@ -18,9 +18,18 @@ import type { ParsedResume, ResumeReport } from './types';
 export { PdfError };
 export * from './types';
 export { parseResume, linesFromText } from './parse';
-export { scoreResume, extractKeywords, DEFAULT_SCORE_OPTIONS, GRADE_BANDS, LENGTH_BANDS } from './score';
+export {
+  scoreResume,
+  extractKeywords,
+  DEFAULT_SCORE_OPTIONS,
+  GRADE_BANDS,
+  LENGTH_BANDS,
+  TOTAL_CHECKS,
+} from './score';
 export type { ScoreOptions } from './score';
 export type { ResumeLine } from './parse';
+export { DEPARTMENTS, getDepartment, LINK_LABEL } from './departments';
+export type { Department, DepartmentId } from './departments';
 
 /** Positioned lines out of the PDF, in the order a reader would take them. */
 function linesFromPdf(doc: PdfExtraction): ResumeLine[] {

@@ -16,7 +16,7 @@
  *     saying the score and findings are unaffected, because they are.
  */
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AiReview, ResumeReport } from '@engines/resume/types';
 import { CopyButton } from '@ui/Actions';
 import { AlertIcon, BoltIcon, CheckIcon, ShieldIcon } from '@ui/Icons';
@@ -26,6 +26,16 @@ interface Props {
   report: ResumeReport;
   targetRole: string;
   jobAd: string;
+  department: string;
+  /**
+   * Start the review as soon as the panel appears.
+   *
+   * Safe to do here, and only here, because the panel is mounted by a
+   * submit the user pressed — they asked for the check, and the request
+   * carries no identifiers. It is not started on file drop, on page
+   * load, or on any option change.
+   */
+  autoRun?: boolean;
 }
 
 type State =
@@ -54,8 +64,12 @@ function redact(report: ResumeReport): string {
   return text;
 }
 
-export function AiReviewPanel({ report, targetRole, jobAd }: Props) {
+export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun = false }: Props) {
   const [state, setState] = useState<State>({ status: 'idle' });
+
+  // Guards the auto-run against React's double-invoked effects in
+  // development, which would otherwise spend two model calls per check.
+  const started = useRef(false);
 
   const run = async () => {
     setState({ status: 'running' });
@@ -72,6 +86,7 @@ export function AiReviewPanel({ report, targetRole, jobAd }: Props) {
           resumeText: redact(report),
           targetRole,
           jobAd,
+          department,
           seniority: report.parsed.seniority,
           score: report.score,
           grade: report.grade,
@@ -101,32 +116,52 @@ export function AiReviewPanel({ report, targetRole, jobAd }: Props) {
     }
   };
 
-  /* ── Before the click ── */
+  useEffect(() => {
+    if (!autoRun || started.current) return;
+    started.current = true;
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once, by design
+  }, [autoRun]);
+
+  /* ── Running ── */
+  if (state.status === 'running') {
+    return (
+      <div className="rounded-xl border border-line bg-panel p-4 sm:p-5">
+        <div className="flex items-center gap-3">
+          <Spinner className="text-brand" />
+          <div className="min-w-0">
+            <p className="text-[14px] font-medium text-fg">Reading your CV as a hiring manager…</p>
+            <p className="mt-0.5 text-[12px] text-fg-subtle">
+              Name, email and phone were removed before sending. Usually a few seconds.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 space-y-2" aria-hidden="true">
+          {[100, 92, 78].map((width) => (
+            <div
+              key={width}
+              className="h-2.5 animate-pulse rounded-full bg-sunken"
+              style={{ width: `${width}%` }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Idle or failed ── */
   if (state.status !== 'done') {
     return (
       <div className="rounded-xl border border-line bg-panel p-4 sm:p-5">
-        <div className="flex items-start gap-3">
-          <BoltIcon size={20} className="mt-0.5 shrink-0 text-brand" />
+        <div className="flex flex-wrap items-start gap-3">
+          <BoltIcon size={18} className="mt-0.5 shrink-0 text-brand" />
           <div className="min-w-0 flex-1">
-            <h3 className="text-[15px] font-semibold text-fg">Second opinion from an AI reviewer</h3>
-            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-fg-muted">
-              Everything above is a rule: countable, repeatable, and computed on your device. This
-              is the other kind of feedback — whether your bullets are actually convincing for the
-              role, and how three or four of them would read rewritten. It is the one part of this
-              tool that sends anything anywhere.
+            <h3 className="text-[15px] font-semibold text-fg">AI review</h3>
+            <p className="mt-1 flex items-start gap-1.5 text-[12.5px] leading-relaxed text-fg-muted">
+              <ShieldIcon size={13} className="mt-0.5 shrink-0 text-brand-text" />
+              Sends your CV text with name, email and phone removed
+              {jobAd.trim() ? ', plus the advert' : ''}. Not the file.
             </p>
-
-            <div className="mt-3 rounded-lg border border-brand-line bg-brand-soft px-3 py-2.5">
-              <p className="flex items-start gap-2 text-[12.5px] leading-relaxed text-fg">
-                <ShieldIcon size={14} className="mt-0.5 shrink-0 text-brand-text" />
-                <span>
-                  <strong className="font-semibold">What gets sent:</strong> the text of your CV with
-                  your name, email address and phone number removed first
-                  {jobAd.trim() ? ', plus the job advert you pasted' : ''}. Not the file. It is not
-                  stored and it is not used for training.
-                </span>
-              </p>
-            </div>
 
             {state.status === 'error' && (
               <p
@@ -138,15 +173,8 @@ export function AiReviewPanel({ report, targetRole, jobAd }: Props) {
               </p>
             )}
 
-            <Button
-              variant="primary"
-              size="md"
-              className="mt-3.5"
-              onClick={() => void run()}
-              disabled={state.status === 'running'}
-            >
-              {state.status === 'running' && <Spinner />}
-              {state.status === 'running' ? 'Reading your CV…' : 'Run the AI review'}
+            <Button variant="primary" size="md" className="mt-3" onClick={() => void run()}>
+              {state.status === 'error' ? 'Try again' : 'Run the AI review'}
             </Button>
           </div>
         </div>

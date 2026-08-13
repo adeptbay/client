@@ -23,8 +23,70 @@ import type {
   Severity,
 } from '@engines/resume/types';
 import { CopyButton } from '@ui/Actions';
-import { AlertIcon, CheckIcon, ChevronDownIcon, InfoIcon } from '@ui/Icons';
-import { Badge, cx } from '@ui/primitives';
+import { AlertIcon, CheckIcon, ChevronDownIcon, CloseIcon, FileIcon, InfoIcon } from '@ui/Icons';
+import { Badge, IconButton, Spinner, cx } from '@ui/primitives';
+import { formatBytes } from '@engines/bytes';
+
+/* ═══════════════════════════════════════════════════════════════════
+   Intake
+   ═══════════════════════════════════════════════════════════════════ */
+
+/** The chosen file, held before the user commits to running the check. */
+export function FileChip({ file, onRemove }: { file: File; onRemove: () => void }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-brand-line bg-brand-soft px-3.5 py-3">
+      <FileIcon size={18} className="shrink-0 text-brand-text" />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13.5px] font-medium text-fg">{file.name}</span>
+        <span className="font-mono text-[11px] text-fg-subtle">{formatBytes(file.size)}</span>
+      </span>
+      <IconButton label="Remove this file" onClick={onRemove} className="h-8 w-8 shrink-0">
+        <CloseIcon size={15} />
+      </IconButton>
+    </div>
+  );
+}
+
+/**
+ * Progress while the deterministic layers run.
+ *
+ * Steps are real — each one is set as that stage begins — but the whole
+ * pass is usually under 150ms, so the caller holds the loader open for a
+ * moment. That is not a fake progress bar: the work is genuinely done,
+ * and a panel that appears and vanishes within one frame reads as a
+ * glitch rather than as a result.
+ */
+export function StepLoader({ steps, current }: { steps: string[]; current: number }) {
+  return (
+    <ul className="space-y-2.5 rounded-xl border border-line bg-panel px-4 py-5 sm:px-5">
+      {steps.map((step, i) => {
+        const done = i < current;
+        const active = i === current;
+        return (
+          <li key={step} className="flex items-center gap-3">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+              {done ? (
+                <CheckIcon size={15} className="text-brand-text" />
+              ) : active ? (
+                <Spinner className="h-4 w-4 text-brand" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-line-strong" />
+              )}
+            </span>
+            <span
+              className={cx(
+                'text-[13.5px] transition-colors',
+                done ? 'text-fg-muted' : active ? 'font-medium text-fg' : 'text-fg-subtle',
+              )}
+            >
+              {step}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    Score
@@ -184,9 +246,9 @@ export function CategoryBars({
    ═══════════════════════════════════════════════════════════════════ */
 
 const SEVERITY: Record<Severity, { label: string; tone: 'danger' | 'warn' | 'neutral'; blurb: string }> = {
-  critical: { label: 'Critical', tone: 'danger', blurb: 'Costs you the application before anyone reads it' },
-  important: { label: 'Important', tone: 'warn', blurb: 'Costs you the read once a human has it' },
-  polish: { label: 'Polish', tone: 'neutral', blurb: 'Preference and consistency' },
+  critical: { label: 'Critical', tone: 'danger', blurb: 'stops it before a human reads it' },
+  important: { label: 'Important', tone: 'warn', blurb: 'costs you the read' },
+  polish: { label: 'Polish', tone: 'neutral', blurb: 'consistency' },
 };
 
 function FindingCard({ finding, defaultOpen }: { finding: Finding; defaultOpen: boolean }) {
@@ -280,10 +342,7 @@ export function FindingList({ findings }: { findings: Finding[] }) {
     return (
       <div className="rounded-xl border border-brand-line bg-brand-soft px-4 py-8 text-center">
         <CheckIcon size={22} className="mx-auto text-brand-text" />
-        <p className="mt-2 text-sm font-medium text-fg">Nothing left to fix in this view.</p>
-        <p className="mt-1 text-[13px] text-fg-muted">
-          Every check in this category passed.
-        </p>
+        <p className="mt-2 text-sm font-medium text-fg">Every check here passed.</p>
       </div>
     );
   }
@@ -388,9 +447,8 @@ export function KeywordGrid({ keywords, coverage }: { keywords: KeywordMatch[]; 
             ))}
           </ul>
           <p className="mt-2.5 text-[12px] leading-relaxed text-fg-subtle">
-            Add only the ones you genuinely meet, in the advert&rsquo;s own spelling, inside the
-            bullet that proves them. A term you cannot answer a question about costs you the
-            interview instead of the screen.
+            Add only what you genuinely meet, in the advert&rsquo;s spelling, inside the bullet
+            that proves it.
           </p>
         </>
       )}
@@ -449,12 +507,12 @@ export function ParserPreview({
       >
         <span className="min-w-0 flex-1">
           <span className="block text-[14px] font-semibold text-fg">
-            {scrambled ? 'What a parser sees — and it is not what you see' : 'The text a parser extracts'}
+            {scrambled ? 'What a parser sees — and it is not what you see' : 'What a parser extracts'}
           </span>
           <span className="mt-0.5 block text-[12px] text-fg-muted">
             {scrambled
-              ? 'Your layout has two columns, so a parser reads straight across the gutter. Compare the two panes.'
-              : 'Everything a recruiter’s system receives from your file. If a line is missing here, it is missing for them.'}
+              ? 'Two columns, so a parser reads straight across the gutter. Compare the panes.'
+              : 'If a line is missing here, it is missing for them too.'}
           </span>
         </span>
         <ChevronDownIcon size={16} className={cx('shrink-0 text-fg-subtle transition-transform', open && 'rotate-180')} />
@@ -465,7 +523,7 @@ export function ParserPreview({
           {scrambled && (
             <div className="bg-panel p-3">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-fg-subtle">
-                How you laid it out
+                Your layout
               </p>
               <pre className="scroll-slim max-h-80 overflow-auto whitespace-pre-wrap break-words font-mono text-[11.5px] leading-relaxed text-fg-muted">
                 {readable}
