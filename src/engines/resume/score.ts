@@ -43,6 +43,7 @@ import type {
   ParsedResume,
   ResumeReport,
   ResumeStats,
+  ScoreScope,
   Seniority,
   Severity,
 } from './types';
@@ -73,7 +74,17 @@ export const DEFAULT_SCORE_OPTIONS: ScoreOptions = {
    ═══════════════════════════════════════════════════════════════════ */
 
 interface CheckReport {
-  ratio: number;
+  /**
+   * 0–1, or **null for "does not apply here"**.
+   *
+   * The distinction matters more than it looks. Returning 1 for a check
+   * that cannot run — keyword coverage with no advert pasted, a
+   * portfolio check for an accountant — awards full marks for a question
+   * never asked, and enough of those turn a score into a participation
+   * medal. A null is struck from the numerator *and* the denominator, so
+   * the score is always out of what was actually measurable.
+   */
+  ratio: number | null;
   title?: string;
   detail?: string;
   fix?: string;
@@ -97,6 +108,17 @@ interface CheckSpec {
   label: string;
   weight: number;
   severity: Severity;
+  /**
+   * Overrides the category's scope for this check alone.
+   *
+   * The department-aware checks live inside quality categories for
+   * display — a missing certifications section belongs next to the other
+   * structure findings — but they measure *fit*, not how good the
+   * document is. Without this override the quality score would drift as
+   * the user changed department, which is exactly the confusion the two
+   * numbers exist to remove.
+   */
+  scope?: ScoreScope;
   run: (ctx: Context) => CheckReport;
 }
 
@@ -105,6 +127,12 @@ interface CategorySpec {
   label: string;
   description: string;
   weight: number;
+  /**
+   * Which of the two headline numbers this category feeds. Everything
+   * about the document itself is `quality`; everything about the fit
+   * between the document and a target is `relevance`.
+   */
+  scope: ScoreScope;
   checks: CheckSpec[];
 }
 
@@ -518,12 +546,13 @@ const CONTACT_CHECKS: CheckSpec[] = [
     label: 'The link this field expects first',
     weight: 12,
     severity: 'important',
+    scope: 'relevance',
     run: ({ parsed, department }) => {
       // 'profile' is already covered by `profile-link` above, and 'none'
       // means the field has no such convention. Charging for either here
       // would be double-counting or inventing a standard.
       if (!department || department.link === 'none' || department.link === 'profile') {
-        return { ratio: 1 };
+        return { ratio: null };
       }
 
       const { github, website } = parsed.contact;
@@ -684,7 +713,7 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
       const order = parsed.sections.map((s) => s.kind);
       const experience = order.indexOf('experience');
       const education = order.indexOf('education');
-      if (experience < 0 || education < 0) return { ratio: 1 };
+      if (experience < 0 || education < 0) return { ratio: null };
 
       const studentLike = seniority === 'student' || seniority === 'entry';
       const correct = studentLike ? education < experience : experience < education;
@@ -727,8 +756,9 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
     label: 'The section this field expects',
     weight: 12,
     severity: 'important',
+    scope: 'relevance',
     run: ({ parsed, department, seniority }) => {
-      if (!department || department.section === null) return { ratio: 1 };
+      if (!department || department.section === null) return { ratio: null };
 
       const wanted = department.section;
       if (parsed.sections.some((s) => s.kind === wanted)) {
@@ -738,7 +768,7 @@ const STRUCTURE_CHECKS: CheckSpec[] = [
       // Projects earn their place while the work history is thin. Asking a
       // fifteen-year engineer for a projects section is asking them to pad.
       if (wanted === 'projects' && seniority !== 'student' && seniority !== 'entry') {
-        return { ratio: 1 };
+        return { ratio: null };
       }
 
       const COPY: Record<'certifications' | 'publications' | 'projects', { detail: string; fix: string }> = {
@@ -893,7 +923,7 @@ const IMPACT_CHECKS: CheckSpec[] = [
     severity: 'polish',
     run: ({ parsed }) => {
       const verbs = parsed.bullets.map((b) => b.verb).filter((v): v is string => v !== null);
-      if (verbs.length < 5) return { ratio: 1 };
+      if (verbs.length < 5) return { ratio: null };
 
       const counts = new Map<string, number>();
       for (const verb of verbs) counts.set(verb, (counts.get(verb) ?? 0) + 1);
@@ -916,7 +946,7 @@ const IMPACT_CHECKS: CheckSpec[] = [
     weight: 6,
     severity: 'polish',
     run: ({ parsed, seniority }) => {
-      if (seniority !== 'senior' && seniority !== 'executive') return { ratio: 1 };
+      if (seniority !== 'senior' && seniority !== 'executive') return { ratio: null };
       const groups = new Set(parsed.bullets.map((b) => b.verbGroup).filter(Boolean));
       if (groups.has('leadership')) return { ratio: 1 };
 
@@ -934,8 +964,9 @@ const IMPACT_CHECKS: CheckSpec[] = [
     label: 'Results stated in this field’s own terms',
     weight: 14,
     severity: 'critical',
+    scope: 'relevance',
     run: ({ parsed, department }) => {
-      if (!department || department.outcomeWords.length === 0) return { ratio: 1 };
+      if (!department || department.outcomeWords.length === 0) return { ratio: null };
       if (parsed.bullets.length === 0) return { ratio: 0.5 };
 
       // A number alone is not evidence here — "12 years" is a number. It
@@ -984,9 +1015,10 @@ const KEYWORD_CHECKS: CheckSpec[] = [
     severity: 'critical',
     run: ({ keywords, options }) => {
       if (keywords === null || keywords.length === 0) {
-        // Nothing to measure against. Neutral, not a deduction — this is
-        // the user declining to paste an advert, not a defect in the CV.
-        return { ratio: 1 };
+        // The user declined to paste an advert. That is not a defect in
+        // the CV, and it is not a pass either — there is nothing here to
+        // measure, so the check leaves the denominator entirely.
+        return { ratio: null };
       }
       const matched = keywords.filter((k) => k.inResume);
       const coverage = matched.length / keywords.length;
@@ -1011,6 +1043,9 @@ const KEYWORD_CHECKS: CheckSpec[] = [
     label: 'A usable skills list',
     weight: 30,
     severity: 'important',
+    // Completeness of the document, not fit to a target: a thin skills
+    // list is a defect whether or not a field has been chosen.
+    scope: 'quality',
     run: ({ parsed }) => {
       const count = parsed.skills.length;
       if (count >= 8 && count <= 40) return { ratio: 1, win: `${count} skills listed — enough to match against without reading as a keyword dump.` };
@@ -1048,7 +1083,7 @@ const KEYWORD_CHECKS: CheckSpec[] = [
     severity: 'important',
     run: ({ parsed, options }) => {
       const target = options.targetRole.trim().toLowerCase();
-      if (target.length < 3) return { ratio: 1 };
+      if (target.length < 3) return { ratio: null };
 
       const top = `${parsed.contact.headline ?? ''} ${parsed.sections.find((s) => s.kind === 'summary')?.text ?? ''}`.toLowerCase();
       const words = target.split(/\s+/).filter((w) => w.length > 2 && !STOP_WORDS.has(w));
@@ -1071,6 +1106,8 @@ const KEYWORD_CHECKS: CheckSpec[] = [
     label: 'Skills claimed without hedging',
     weight: 10,
     severity: 'polish',
+    // A hedged claim is weak writing, independent of the target.
+    scope: 'quality',
     run: ({ parsed }) => {
       const hedged = parsed.lines.filter((l) =>
         /\b(familiar with|exposure to|basic understanding|working knowledge|some experience with)\b/i.test(l),
@@ -1091,7 +1128,7 @@ const KEYWORD_CHECKS: CheckSpec[] = [
     weight: 25,
     severity: 'important',
     run: ({ parsed, department }) => {
-      if (!department || department.coreSkills.length === 0) return { ratio: 1 };
+      if (!department || department.coreSkills.length === 0) return { ratio: null };
 
       const haystack = haystackOf(parsed);
       const found = department.coreSkills.filter((skill) => mentions(haystack, skill));
@@ -1240,7 +1277,7 @@ const LANGUAGE_CHECKS: CheckSpec[] = [
     severity: 'polish',
     run: ({ parsed }) => {
       const bullets = parsed.bullets;
-      if (bullets.length < 4) return { ratio: 1 };
+      if (bullets.length < 4) return { ratio: null };
       const withStop = bullets.filter((b) => /[.;]$/.test(b.text.trim())).length;
       const share = withStop / bullets.length;
       if (share <= 0.15 || share >= 0.85) return { ratio: 1 };
@@ -1337,6 +1374,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'ATS parse safety',
     description: 'Whether the software between you and the recruiter can read the file at all.',
     weight: 25,
+    scope: 'quality',
     checks: PARSE_CHECKS,
   },
   {
@@ -1344,6 +1382,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Contact & identity',
     description: 'The fields a recruiter needs to act, and whether they survive parsing.',
     weight: 10,
+    scope: 'quality',
     checks: CONTACT_CHECKS,
   },
   {
@@ -1351,6 +1390,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Structure & sections',
     description: 'Whether the document is organised the way a screener and a parser both expect.',
     weight: 15,
+    scope: 'quality',
     checks: STRUCTURE_CHECKS,
   },
   {
@@ -1358,6 +1398,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Impact & evidence',
     description: 'Whether the bullets prove anything, or only describe the job.',
     weight: 22,
+    scope: 'quality',
     checks: IMPACT_CHECKS,
   },
   {
@@ -1365,6 +1406,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Keywords & skills',
     description: 'How well the CV matches what is being searched for.',
     weight: 15,
+    scope: 'relevance',
     checks: KEYWORD_CHECKS,
   },
   {
@@ -1372,6 +1414,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Language & polish',
     description: 'The wording habits that make a CV read as considered or careless.',
     weight: 8,
+    scope: 'quality',
     checks: LANGUAGE_CHECKS,
   },
   {
@@ -1379,6 +1422,7 @@ const CATEGORIES: CategorySpec[] = [
     label: 'Length & density',
     description: 'Whether the document is the size a reader expects for this career stage.',
     weight: 5,
+    scope: 'quality',
     checks: LENGTH_CHECKS,
   },
 ];
@@ -1428,28 +1472,73 @@ export function scoreResume(
   const findings: Finding[] = [];
   const wins: string[] = [];
 
+  /* Each check contributes to exactly one of the two headline numbers.
+     Buckets are filled here and divided at the end, so a check that did
+     not apply never reaches either denominator. */
+  const bucket: Record<ScoreScope, { earned: number; max: number }> = {
+    quality: { earned: 0, max: 0 },
+    relevance: { earned: 0, max: 0 },
+  };
+
   for (const spec of CATEGORIES) {
     const outcomes: CheckOutcome[] = [];
-    const available = spec.checks.reduce((sum, c) => sum + c.weight, 0);
-    let earned = 0;
 
-    for (const check of spec.checks) {
+    // Run first, so the applicable weight is known before anything is
+    // divided by it.
+    const results = spec.checks.map((check) => {
       let report: CheckReport;
       try {
         report = check.run(ctx);
       } catch {
         // A single broken rule must never take down the report. Treat it
-        // as neutral rather than as a failure the user cannot act on.
-        report = { ratio: 1 };
+        // as unmeasurable rather than as a failure the user cannot act on.
+        report = { ratio: null };
+      }
+      return { check, report };
+    });
+
+    const applicable = results.filter((r) => r.report.ratio !== null);
+    /** Applicable weight — drives the category's own displayed score. */
+    const available = applicable.reduce((sum, r) => sum + r.check.weight, 0);
+    /**
+     * Total weight — drives each check's share of the headline scores.
+     *
+     * Deliberately not the applicable weight. Renormalising over what
+     * happened to apply makes every remaining check heavier, so choosing
+     * a department would nudge the *quality* score simply by changing
+     * which fit checks ran. Fixed shares keep quality a property of the
+     * document and nothing else; the weight of a check that did not run
+     * is just unused.
+     */
+    const total = spec.checks.reduce((sum, c) => sum + c.weight, 0);
+    let earned = 0;
+
+    for (const { check, report } of results) {
+      if (report.ratio === null) {
+        outcomes.push({
+          id: check.id,
+          label: check.label,
+          ratio: 1,
+          // Zero weight is how the UI knows this one did not apply.
+          weight: 0,
+          severity: check.severity,
+          finding: null,
+        });
+        continue;
       }
 
       const ratio = clamp01(report.ratio);
       earned += ratio * check.weight;
 
+      // This check's fixed share of the category, times the category's weight.
+      const share = total === 0 ? 0 : (check.weight / total) * spec.weight;
+      const scope = check.scope ?? spec.scope;
+      bucket[scope].earned += ratio * share;
+      bucket[scope].max += share;
+
       const hasFinding = ratio < 0.999 && report.title !== undefined;
-      // What this check costs on the 0–100 scale: its share of the
-      // category, times the category's share of the total.
-      const pointsLost = ((1 - ratio) * check.weight * spec.weight) / Math.max(1, available);
+      // What this check costs on the 0–100 scale.
+      const pointsLost = (1 - ratio) * share;
 
       outcomes.push({
         id: check.id,
@@ -1493,12 +1582,23 @@ export function scoreResume(
       weight: spec.weight,
       points: Math.round((score / 100) * spec.weight * 10) / 10,
       maxPoints: spec.weight,
+      scope: spec.scope,
       checks: outcomes,
     });
   }
 
-  /* ── Roll-up, then the gate ── */
-  let overall = categories.reduce((sum, c) => sum + (c.score / 100) * c.weight, 0);
+  /* ── Two roll-ups, not one ───────────────────────────────────────
+     A CV can be excellent and still be the wrong CV for the job. Rolled
+     into a single number those two facts cancel out, and the candidate
+     is left unable to tell whether to rewrite the document or apply
+     somewhere else — which are opposite actions. So quality and fit are
+     computed separately and shown separately.
+
+     Quality is deliberately department-independent: changing the field
+     must move the fit number and leave the document's own quality
+     exactly where it was.                                            */
+
+  let overall = bucket.quality.max === 0 ? 0 : (bucket.quality.earned / bucket.quality.max) * 100;
 
   const parseCategory = categories.find((c) => c.id === 'parse');
   if (parseCategory) {
@@ -1511,6 +1611,26 @@ export function scoreResume(
 
   const score = Math.max(0, Math.min(100, Math.round(overall)));
   const { grade, verdict } = gradeFor(score);
+
+  /* Relevance is only meaningful against something. With neither a
+     department nor an advert every relevance check returns null, the
+     bucket stays empty, and the number is absent rather than invented. */
+  const relevance =
+    bucket.relevance.max === 0
+      ? null
+      : Math.max(0, Math.min(100, Math.round((bucket.relevance.earned / bucket.relevance.max) * 100)));
+
+  const relevanceLabel = keywords !== null ? 'Job match' : 'Field match';
+  const relevanceVerdict =
+    relevance === null
+      ? 'Pick a department, or paste the advert, to measure fit.'
+      : relevance >= 80
+        ? `Strongly aligned${department ? ` with ${department.label.toLowerCase()}` : ''} — the vocabulary a screener searches for is already here.`
+        : relevance >= 60
+          ? 'Recognisable as a fit, with terms missing that you probably qualify for. See the findings below.'
+          : relevance >= 40
+            ? 'Reads as adjacent rather than aimed. The CV needs the field’s own words for the work you have already done.'
+            : 'This CV is not currently written for this target. That is a rewrite of the wording, not necessarily of the career.';
 
   /* ── Order the findings: what costs most, first ── */
   const severityRank: Record<Severity, number> = { critical: 0, important: 1, polish: 2 };
@@ -1537,7 +1657,11 @@ export function scoreResume(
   return {
     score,
     grade,
+    relevance,
+    relevanceGrade: relevance === null ? null : gradeFor(relevance).grade,
+    relevanceLabel,
     verdict,
+    relevanceVerdict,
     categories,
     findings,
     wins,

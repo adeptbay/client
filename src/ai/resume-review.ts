@@ -51,6 +51,8 @@ export interface ReviewInput {
   departmentOutcome: string;
   score: number;
   grade: string;
+  /** Field/job fit, 0-100, separate from quality. Null if unmeasurable. */
+  relevance: number | null;
   /** Layer-2 finding titles, so the model adds instead of repeating. */
   knownIssues: string[];
   missingKeywords: string[];
@@ -158,7 +160,10 @@ export function buildUserPrompt(input: ReviewInput): string {
   parts.push(
     `TARGET_ROLE: ${input.targetRole || '(not specified — judge against the roles the CV itself claims)'}`,
     `CAREER_STAGE (inferred from the dates): ${input.seniority}`,
-    `RULE_BASED_SCORE: ${input.score}/100 (grade ${input.grade})`,
+    `RULE_BASED_CV_QUALITY: ${input.score}/100 (grade ${input.grade})`,
+    input.relevance === null
+      ? 'RULE_BASED_FIT: not measured.'
+      : `RULE_BASED_FIT to this field/advert: ${input.relevance}/100. These two are deliberately separate — a strong CV can still be aimed at the wrong thing. If quality is high and fit is low, say so plainly: the fix is the wording, not the career.`,
   );
 
   if (input.knownIssues.length > 0) {

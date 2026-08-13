@@ -28,6 +28,27 @@ export const CHANGE_LABELS: Record<ChangeKind, string> = {
 export const changelog: ChangeEntry[] = [
   {
     date: '2026-08-13',
+    kind: 'changed',
+    title: 'The CV checker now returns two scores instead of one',
+    detail:
+      'A single number could not answer the two questions people actually have, because they fail in opposite directions: a well-made CV aimed at the wrong role and a badly-made CV aimed at the right one produced similar figures and opposite correct actions. There are now a CV quality score — parsing, structure, evidence, language, length — and a separate field or job fit score. Quality is department-independent by construction: changing your field moves fit and leaves quality exactly where it was.',
+  },
+  {
+    date: '2026-08-13',
+    kind: 'fixed',
+    title: 'Checks that could not run were scoring full marks',
+    detail:
+      'Keyword coverage with no advert pasted, a portfolio check for an accountant, a leadership check on a graduate CV — each returned a pass rather than standing down, so a score could be inflated by questions that were never asked. Those checks are now excluded from the total instead of awarded it, which is why some scores moved. Present throughout the checker\'s development and fixed before it saw traffic.',
+  },
+  {
+    date: '2026-08-13',
+    kind: 'added',
+    title: 'The CV checker judges against your department',
+    detail:
+      'Eighteen fields, covering CSE, civil and electrical engineering, BBA, English and Bangla, healthcare, law, design, sales and the rest. Each one changes four things and only four: which skills a recruiter in that field searches for, which link they open first, which extra section is expected, and how a result is phrased. A missing portfolio link is fatal in design and irrelevant in accounting; a quota figure is everything in sales and nothing on a clinical CV. The AI review reads the same way, as that field\'s hiring manager. Leave the field unselected and every department check stands down rather than guessing.',
+  },
+  {
+    date: '2026-08-13',
     kind: 'added',
     title: 'CV / Resume Checker — the Career division opens',
     detail:

@@ -145,6 +145,16 @@ export interface CheckOutcome {
   severity: Severity;
 }
 
+/**
+ * Which of the two scores a category feeds.
+ *
+ * A CV can be excellent and still be the wrong CV for the job. Rolling
+ * both facts into one number produces a figure that explains neither —
+ * the candidate cannot tell whether to rewrite the document or apply
+ * somewhere else, which are opposite actions.
+ */
+export type ScoreScope = 'quality' | 'relevance';
+
 export interface CategoryResult {
   id: CategoryId;
   label: string;
@@ -152,10 +162,11 @@ export interface CategoryResult {
   description: string;
   /** 0–100 within the category. */
   score: number;
-  /** Share of the overall score. */
+  /** Share of the score it feeds. */
   weight: number;
   points: number;
   maxPoints: number;
+  scope: ScoreScope;
   checks: CheckOutcome[];
 }
 
@@ -185,11 +196,25 @@ export interface KeywordMatch {
 }
 
 export interface ResumeReport {
-  /** 0–100, the weighted roll-up of every category. */
+  /**
+   * CV quality, 0–100 — how good the document is, independent of what
+   * it is being sent to. Parsing, structure, evidence, language, length.
+   */
   score: number;
   grade: Grade;
+  /**
+   * How well this CV fits the field and the advert, 0–100. Null only
+   * when neither a department nor a job advert was given, since there is
+   * then nothing to be relevant *to*.
+   */
+  relevance: number | null;
+  relevanceGrade: Grade | null;
+  /** "Job match" once an advert is pasted, "Field match" before that. */
+  relevanceLabel: string;
   /** One sentence a person can act on, keyed to the score band. */
   verdict: string;
+  /** What the relevance number means, in one sentence. */
+  relevanceVerdict: string;
   categories: CategoryResult[];
   findings: Finding[];
   /** What the CV already gets right. A scorer that only nags gets closed. */

@@ -27,6 +27,8 @@ interface Props {
   targetRole: string;
   jobAd: string;
   department: string;
+  /** Readable department name, e.g. "Software & IT (CSE)". */
+  departmentLabel: string;
   /**
    * Start the review as soon as the panel appears.
    *
@@ -64,7 +66,14 @@ function redact(report: ResumeReport): string {
   return text;
 }
 
-export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun = false }: Props) {
+export function AiReviewPanel({
+  report,
+  targetRole,
+  jobAd,
+  department,
+  departmentLabel,
+  autoRun = false,
+}: Props) {
   const [state, setState] = useState<State>({ status: 'idle' });
 
   // Guards the auto-run against React's double-invoked effects in
@@ -89,6 +98,7 @@ export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun =
           department,
           seniority: report.parsed.seniority,
           score: report.score,
+          relevance: report.relevance,
           grade: report.grade,
           knownIssues: report.findings.map((f) => f.title),
           missingKeywords: (report.keywords ?? []).filter((k) => !k.inResume).map((k) => k.term),
@@ -130,7 +140,10 @@ export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun =
         <div className="flex items-center gap-3">
           <Spinner className="text-brand" />
           <div className="min-w-0">
-            <p className="text-[14px] font-medium text-fg">Reading your CV as a hiring manager…</p>
+            <p className="text-[14px] font-medium text-fg">
+              Reading your CV as {departmentLabel ? `a ${departmentLabel} ` : 'a '}hiring
+              manager…
+            </p>
             <p className="mt-0.5 text-[12px] text-fg-subtle">
               Name, email and phone were removed before sending. Usually a few seconds.
             </p>
@@ -156,7 +169,7 @@ export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun =
         <div className="flex flex-wrap items-start gap-3">
           <BoltIcon size={18} className="mt-0.5 shrink-0 text-brand" />
           <div className="min-w-0 flex-1">
-            <h3 className="text-[15px] font-semibold text-fg">AI review</h3>
+            <h3 className="text-[15px] font-semibold text-fg">AI recruiter review</h3>
             <p className="mt-1 flex items-start gap-1.5 text-[12.5px] leading-relaxed text-fg-muted">
               <ShieldIcon size={13} className="mt-0.5 shrink-0 text-brand-text" />
               Sends your CV text with name, email and phone removed
@@ -191,13 +204,26 @@ export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun =
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-[15px] font-semibold text-fg">
             <BoltIcon size={16} className="text-brand" />
-            AI review
+            AI recruiter review
           </h3>
           <span className="font-mono text-[11px] text-fg-subtle">
             {review.model}
             {review.cached && ' · cached'}
           </span>
         </div>
+
+        {/* Who did the reading. Specific beats impressive: "a Software &
+            IT hiring manager" is checkable and is the thing the
+            department selector actually bought. Keeping "AI" in the
+            heading is not a hedge — a label that lets a reader believe a
+            person reviewed their CV is the one that destroys trust when
+            they work it out. */}
+        {departmentLabel && (
+          <p className="mt-1 text-[12px] text-fg-subtle">
+            Read as a {departmentLabel} hiring manager
+            {targetRole.trim() ? ` hiring for ${targetRole.trim()}` : ''}.
+          </p>
+        )}
 
         <p className="mt-3 text-[14px] leading-relaxed text-fg">{review.verdict}</p>
 
@@ -230,9 +256,8 @@ export function AiReviewPanel({ report, targetRole, jobAd, department, autoRun =
         <div className="rounded-xl border border-line bg-panel p-4 sm:p-5">
           <h4 className="text-[14px] font-semibold text-fg">Rewritten bullets</h4>
           <p className="mt-1 text-[12.5px] leading-relaxed text-fg-muted">
-            Every &ldquo;before&rdquo; below was checked against your actual file — anything the model
-            paraphrased rather than quoted was discarded. Square brackets are numbers only you have;
-            fill them in rather than guessing.
+            Each &ldquo;before&rdquo; was matched against your real file — paraphrases were
+            discarded. Square brackets are numbers only you have.
           </p>
 
           <ul className="mt-3 space-y-3">

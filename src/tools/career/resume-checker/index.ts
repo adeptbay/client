@@ -152,8 +152,12 @@ export default defineTool<File[], Options>({
       a: 'No. The PDF is parsed inside this browser tab by code that ships with the page, so the file never leaves your device and closing the tab removes it. The optional AI review at the end is the only feature that sends anything, it asks before it runs, and it strips your name, email and phone first.',
     },
     {
+      q: 'Why are there two scores?',
+      a: 'Because they fail in opposite directions. CV quality asks whether the document is well made — parsing, structure, evidence, language — and never changes when you change department. Fit asks whether this CV is written for the field and advert you chose. A quality of 85 with a fit of 40 is a good CV aimed at the wrong thing, and the fix is the wording, not the career; the reverse is a real match buried in a badly built document.',
+    },
+    {
       q: 'What score should I be aiming for?',
-      a: 'Above 80, with nothing left in Critical. The number matters less than its composition: a 72 with clean parsing is a good CV that needs stronger bullets, and a 72 carrying a parse failure is a CV that will not arrive. Fix the named findings and the number follows.',
+      a: 'Above 80 on quality with nothing left in Critical, and above 70 on fit for the job you actually want. The composition matters more than the number: a 72 with clean parsing is a good CV that needs stronger bullets, and a 72 carrying a parse failure is a CV that will not arrive at all. Fix the named findings and both numbers follow.',
     },
     {
       q: 'Why did my beautifully designed CV score badly?',
@@ -165,7 +169,7 @@ export default defineTool<File[], Options>({
     },
     {
       q: 'What does choosing a department actually change?',
-      a: 'Four things: which skills a recruiter in that field searches for, which link they open first, which extra section is expected, and what a result is phrased as. The same front-end CV scores 83 as engineering and 80 as sales in our own testing — not because it got worse, but because it never states a quota, a pipeline figure or a win rate. Leave the field unselected and every department-specific check stays neutral rather than guessing.',
+      a: 'Four things: which skills a recruiter in that field searches for, which link they open first, which extra section is expected, and how a result is phrased. It changes the fit score only — quality is department-independent by construction. In our own testing the same front-end CV holds a quality of 82 while its fit goes from 73 as software to 0 as sales, because it never states a quota, a pipeline figure or a win rate.',
     },
     {
       q: 'Will the AI rewrite my CV for me?',
@@ -179,16 +183,18 @@ export default defineTool<File[], Options>({
 
   infoGain: {
     summary:
-      'Most CV scorers show a percentage and sell the explanation. This one parses the PDF in your browser the way an applicant tracking system does — fonts, columns, text layer and all — then reports 43 named checks across seven weighted categories, judged against the department you are applying to, each one quoting the line in your CV that cost the points.',
+      'Most CV scorers return one percentage and sell the explanation. This one parses the PDF in your browser the way an applicant tracking system does, then returns two numbers that answer different questions — how good the document is, and how well it fits the field you picked — with 43 named checks behind them, each quoting the line in your CV that cost the points.',
     benchmarks: [
       { label: 'Checks run', value: '43', note: 'across parsing, contact, structure, evidence, keywords, language and length' },
-      { label: 'Departments', value: '15', note: 'each with its own expected skills, link, section and definition of a result' },
+      { label: 'Scores returned', value: '2', note: 'CV quality is department-independent by construction; fit moves with the field and the advert' },
+      { label: 'Departments', value: '18', note: 'each with its own expected skills, link, section and definition of a result' },
       { label: 'Weighting', value: 'parse 25 · impact 22 · structure 15 · keywords 15 · contact 10 · language 8 · length 5' },
       { label: 'Parse gate', value: 'caps the total', note: 'a CV a machine cannot read cannot average its way to a pass on wording' },
       { label: 'Typical run', value: 'under 1s', note: 'for a two-page CV, entirely on your device' },
     ],
     supports: [
-      'Department-aware scoring across 15 fields — the skills searched for, the link opened first, the section expected and what counts as a result all change with the field, because a sales CV and a clinical CV are not the same document scored twice',
+      'Two separate scores — CV quality and field/job fit — because a strong CV aimed at the wrong role and a weak CV aimed at the right one need opposite fixes, and one blended number hides which you have',
+      'Department-aware scoring across 18 fields including CSE, civil and electrical engineering, BBA, English and Bangla — the skills searched for, the link opened first, the section expected and what counts as a result all change with the field',
       'PDF text extraction with no upload and no third-party library — objects, streams, fonts and content operators, so a parse failure is reported rather than quietly recovered',
       'Two-column detection, with a side-by-side view of how the gutter scrambles your CV when read straight across',
       'Hidden-text detection — white-on-white and invisible render modes, the keyword stuffing that gets applications discarded',
@@ -277,7 +283,16 @@ export default defineTool<File[], Options>({
 
     return {
       stats: [
-        { label: 'Score', value: `${report.score}/100`, hint: `grade ${report.grade}`, primary: true },
+        { label: 'CV quality', value: `${report.score}/100`, hint: `grade ${report.grade}`, primary: true },
+        {
+          label: report.relevanceLabel,
+          value: report.relevance === null ? '—' : `${report.relevance}/100`,
+          hint:
+            report.relevance === null
+              ? 'set a department to measure fit'
+              : 'a good CV can still be the wrong CV for the job',
+          primary: true,
+        },
         {
           label: 'Critical findings',
           value: criticals.length,

@@ -129,6 +129,7 @@ export async function POST(request: Request): Promise<Response> {
     departmentPersona: department?.persona ?? '',
     departmentOutcome: department?.outcomeExample ?? '',
     score: typeof body.score === 'number' ? Math.round(body.score) : 0,
+    relevance: typeof body.relevance === 'number' ? Math.round(body.relevance) : null,
     grade: str(body.grade, 3),
     knownIssues: strList(body.knownIssues, REVIEW_LIMITS.issues, 160),
     missingKeywords: strList(body.missingKeywords, REVIEW_LIMITS.keywords, 40),

@@ -30,15 +30,18 @@
 
 export type DepartmentId =
   | 'engineering'
+  | 'engineering-core'
   | 'data'
   | 'design'
   | 'product'
+  | 'business'
   | 'marketing'
   | 'sales'
   | 'finance'
   | 'hr'
   | 'operations'
   | 'support'
+  | 'humanities'
   | 'healthcare'
   | 'education'
   | 'legal'
@@ -73,8 +76,8 @@ export interface Department {
 export const DEPARTMENTS: Department[] = [
   {
     id: 'engineering',
-    label: 'Software & Engineering',
-    blurb: 'Developers, DevOps, QA, hardware and technical engineering.',
+    label: 'Software & IT (CSE)',
+    blurb: 'Developers, DevOps, QA, IT and computer science.',
     coreSkills: [
       'javascript', 'typescript', 'python', 'java', 'c++', 'go', 'rust', 'sql',
       'react', 'node.js', 'aws', 'azure', 'docker', 'kubernetes', 'git', 'ci/cd',
@@ -90,6 +93,33 @@ export const DEPARTMENTS: Department[] = [
     ],
     outcomeExample: 'cut p95 latency 340ms → 90ms, or took deploys from weekly to 12 a day',
     persona: 'an engineering manager who reads for scope, ownership and whether the candidate has shipped things that stayed up',
+  },
+  {
+    /**
+     * Split from software on purpose. An EEE or Civil graduate scored
+     * against React and Kubernetes fails a check they were never sitting,
+     * and that is precisely the population this tool exists for.
+     */
+    id: 'engineering-core',
+    label: 'Engineering — Civil, EEE, Mechanical',
+    blurb: 'Civil, electrical, electronic, mechanical, chemical and industrial.',
+    coreSkills: [
+      'autocad', 'solidworks', 'revit', 'matlab', 'ansys', 'staad pro', 'etabs',
+      'primavera', 'ms project', 'pcb design', 'plc', 'scada', 'embedded systems',
+      'circuit design', 'power systems', 'thermodynamics', 'cad', 'gis',
+      'structural analysis', 'quality control', 'iso 9001', 'health and safety',
+      'project management', 'site supervision', 'estimation', 'maintenance',
+      'six sigma', 'lean', 'root cause analysis', 'technical drawing',
+    ],
+    link: 'profile',
+    section: 'projects',
+    outcomeWords: [
+      'cost', 'savings', 'downtime', 'efficiency', 'output', 'capacity', 'yield',
+      'defects', 'tolerance', 'load', 'kw', 'mw', 'tonnes', 'units', 'schedule',
+      'budget', 'safety', 'incidents', 'maintenance', 'uptime', 'throughput',
+    ],
+    outcomeExample: 'cut plant downtime 14% and delivered a 2.4MW installation three weeks ahead of schedule',
+    persona: 'a project or plant engineer who reads for site experience, standards worked to, and the scale of what was delivered',
   },
   {
     id: 'data',
@@ -150,6 +180,55 @@ export const DEPARTMENTS: Department[] = [
     ],
     outcomeExample: 'launched to 40k users in 6 weeks, lifting activation 22%',
     persona: 'a head of product who is looking for decisions the candidate owned and outcomes they can be held to',
+  },
+  {
+    id: 'business',
+    label: 'Business & Management (BBA)',
+    blurb: 'General business, management, administration and commerce.',
+    coreSkills: [
+      'business development', 'strategic planning', 'project management', 'market research',
+      'financial analysis', 'budget management', 'stakeholder management', 'crm', 'excel',
+      'powerpoint', 'presentation', 'negotiation', 'team leadership', 'reporting',
+      'process improvement', 'microsoft office', 'data analysis', 'erp', 'operations',
+      'business analysis', 'kpi', 'forecasting', 'vendor management', 'communication',
+    ],
+    link: 'profile',
+    section: null,
+    outcomeWords: [
+      'revenue', 'cost', 'savings', 'growth', 'margin', 'budget', 'clients', 'accounts',
+      'efficiency', 'productivity', 'kpi', 'targets', 'market share', 'roi', 'headcount',
+      'turnover', 'sales', 'profit', 'customers', 'projects',
+    ],
+    outcomeExample: 'grew a regional account book 18% while cutting servicing cost per client 22%',
+    persona: 'a general manager who reads for commercial ownership and numbers the candidate personally moved',
+  },
+  {
+    /**
+     * The largest gap in the first version of this catalogue. An English
+     * or Bangla graduate applying for a content, teaching, editorial or
+     * translation role had no field that described them, and was scored
+     * against a vocabulary they correctly never use.
+     */
+    id: 'humanities',
+    label: 'English, Bangla & Humanities',
+    blurb: 'Literature, languages, translation, writing, media and the humanities.',
+    coreSkills: [
+      'academic writing', 'creative writing', 'copywriting', 'content writing', 'editing',
+      'proofreading', 'translation', 'transcription', 'literary analysis', 'research',
+      'literature review', 'linguistics', 'journalism', 'sub-editing', 'scriptwriting',
+      'public speaking', 'communication', 'curriculum development', 'presentation',
+      'seo', 'social media', 'wordpress', 'critical analysis', 'referencing',
+    ],
+    // Writing is the one field where the work itself is the portfolio.
+    link: 'portfolio',
+    section: 'publications',
+    outcomeWords: [
+      'words', 'articles', 'readers', 'views', 'circulation', 'publications', 'translations',
+      'pages', 'editions', 'students', 'engagement', 'submissions', 'deadline', 'turnaround',
+      'accuracy', 'manuscripts', 'issues', 'subscribers', 'campaigns',
+    ],
+    outcomeExample: 'translated 120,000 words across 14 titles at 99% on-time delivery, or grew a column to 40k monthly readers',
+    persona: 'an editor or department head who reads for range, accuracy and published evidence of the writing itself',
   },
   {
     id: 'marketing',

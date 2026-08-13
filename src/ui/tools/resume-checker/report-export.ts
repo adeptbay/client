@@ -51,20 +51,30 @@ export function buildMarkdownReport(
   const date = new Date().toISOString().slice(0, 10);
 
   const lines: string[] = [
-    `# CV check — ${report.score}/100 (grade ${report.grade})`,
+    `# CV check — quality ${report.score}/100 (grade ${report.grade})`,
     '',
     report.verdict,
     '',
+    report.relevance === null
+      ? ''
+      : `**${report.relevanceLabel}: ${report.relevance}/100.** ${report.relevanceVerdict}`,
+    '',
     `_${meta.fileName} · checked ${date}${meta.targetRole ? ` · against "${meta.targetRole}"` : ''}_`,
+    '',
+    "_Estimated against our published criteria — not a guarantee of an interview, or of any particular system's acceptance._",
     '',
     '## Score breakdown',
     '',
-    '| Category | Score | Points |',
-    '| --- | --- | --- |',
+    '| Category | Score | Points | Feeds |',
+    '| --- | --- | --- | --- |',
   ];
 
   for (const category of report.categories) {
-    lines.push(`| ${category.label} | ${category.score}/100 | ${category.points}/${category.maxPoints} |`);
+    lines.push(
+      `| ${category.label} | ${category.score}/100 | ${category.points}/${category.maxPoints} | ${
+        category.scope === 'quality' ? 'CV quality' : report.relevanceLabel
+      } |`,
+    );
   }
 
   lines.push(

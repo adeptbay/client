@@ -76,7 +76,7 @@ import {
   KeywordGrid,
   Panel,
   ParserPreview,
-  ScoreRing,
+  ScorePair,
   StatStrip,
   StepLoader,
   WinList,
@@ -116,11 +116,19 @@ const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * The deterministic pass is usually under 150ms. Held open briefly so
- * the loader reads as a result rather than a flicker — the work is
- * genuinely finished either way.
+ * The deterministic pass is usually under 150ms. Each step is held open
+ * briefly so the loader reads as a result rather than a flicker — the
+ * labels describe work that genuinely runs, in the order it runs.
  */
-const MIN_STEP_MS = 260;
+const MIN_STEP_MS = 190;
+
+const STEPS = [
+  'Reading your CV',
+  'Extracting what a parser sees',
+  'Detecting sections and roles',
+  'Checking evidence and keywords',
+  'Preparing recommendations',
+];
 
 export function ResumeChecker() {
   const [stage, setStage] = useState<Stage>({ status: "idle" });
@@ -135,7 +143,6 @@ export function ResumeChecker() {
   const [missingDepartment, setMissingDepartment] = useState(false);
 
   const engineRef = useRef<Engine | null>(null);
-  const totalChecks = useRef(0);
 
   const options = useMemo<ScoreOptions>(
     () => ({ department, targetRole, jobAd, seniority }),
@@ -154,7 +161,6 @@ export function ResumeChecker() {
     try {
       const engine = engineRef.current ?? (await import("@engines/resume"));
       engineRef.current = engine;
-      totalChecks.current = engine.TOTAL_CHECKS;
 
       const bytes = new Uint8Array(await file.arrayBuffer());
       await Promise.all([paint(), wait(MIN_STEP_MS)]);
@@ -162,10 +168,11 @@ export function ResumeChecker() {
       setStage({ status: "working", file, step: 1 });
       await paint();
       const { doc, parsed } = await engine.prepareResume(bytes);
-      await wait(MIN_STEP_MS);
 
-      setStage({ status: "working", file, step: 2 });
-      await Promise.all([paint(), wait(MIN_STEP_MS)]);
+      for (const step of [2, 3, 4]) {
+        setStage({ status: "working", file, step });
+        await Promise.all([paint(), wait(MIN_STEP_MS)]);
+      }
 
       setStage({ status: "ready", doc, parsed, fileName: file.name });
 
@@ -243,11 +250,6 @@ export function ResumeChecker() {
   );
 
   const intake = stage.status === "idle" || stage.status === "staged";
-  const stepLabels = [
-    "Reading the PDF",
-    "Extracting what a parser sees",
-    `Running ${totalChecks.current || 43} checks`,
-  ];
 
   return (
     <div className="space-y-4">
@@ -394,7 +396,7 @@ export function ResumeChecker() {
 
       {/* ═══ Working ═══ */}
       {stage.status === "working" && (
-        <StepLoader steps={stepLabels} current={stage.step} />
+        <StepLoader steps={STEPS} current={stage.step} />
       )}
 
       {/* ═══ Report ═══ */}
@@ -403,7 +405,13 @@ export function ResumeChecker() {
           {/* Score */}
           <div className="rounded-xl border border-line bg-panel p-4 sm:p-5">
             <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-              <ScoreRing score={report.score} grade={report.grade} />
+              <ScorePair
+                score={report.score}
+                grade={report.grade}
+                relevance={report.relevance}
+                relevanceGrade={report.relevanceGrade}
+                relevanceLabel={report.relevanceLabel}
+              />
 
               <div className="min-w-0 flex-1 text-center sm:text-left">
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
@@ -447,7 +455,7 @@ export function ResumeChecker() {
                   })}
                 </div>
 
-                <div className="mt-3.5 flex flex-wrap justify-center gap-2 sm:justify-start">
+                <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <DownloadButton
                     value={markdown}
                     filename={`cv-report-${new Date().toISOString().slice(0, 10)}.md`}
@@ -457,6 +465,15 @@ export function ResumeChecker() {
                   <CopyButton value={markdown} label="Copy" size="md" />
                   <ResetButton onClick={reset} />
                 </div>
+
+                {/* No applicant tracking system publishes a scoring
+                    formula, so any tool claiming to reproduce one is
+                    inventing it. Saying so is the difference between a
+                    measurement and a promise. */}
+                <p className="mt-3 text-[11.5px] leading-snug text-fg-subtle">
+                  Estimated against our published criteria — not a guarantee of an interview or of
+                  any particular system&rsquo;s acceptance.
+                </p>
               </div>
             </div>
 
@@ -519,6 +536,7 @@ export function ResumeChecker() {
               targetRole={targetRole}
               jobAd={jobAd}
               department={department}
+              departmentLabel={selected?.label ?? ""}
               autoRun
             />
           )}
@@ -532,7 +550,7 @@ export function ResumeChecker() {
           {report.keywords !== null &&
             report.keywords.length > 0 &&
             report.keywordCoverage !== null && (
-              <Panel title="Against the job advert">
+              <Panel title="Against the job advert" subtitle={report.relevanceVerdict}>
                 <KeywordGrid
                   keywords={report.keywords}
                   coverage={report.keywordCoverage}

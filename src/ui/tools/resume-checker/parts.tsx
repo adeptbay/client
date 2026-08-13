@@ -100,42 +100,83 @@ export function scoreTone(score: number): { css: string; label: string; token: s
   return { css: 'var(--danger)', label: 'text-danger', token: 'danger' };
 }
 
-export function ScoreRing({ score, grade }: { score: number; grade: string }) {
+export function ScoreRing({
+  score,
+  grade,
+  caption,
+}: {
+  score: number;
+  grade: string;
+  caption: string;
+}) {
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
   const tone = scoreTone(score);
 
   return (
-    <div className="relative shrink-0">
-      <svg
-        viewBox="0 0 128 128"
-        className="h-32 w-32 sm:h-36 sm:w-36"
-        role="img"
-        aria-label={`Score ${score} out of 100, grade ${grade}`}
-      >
-        <circle cx="64" cy="64" r={radius} fill="none" stroke="var(--line)" strokeWidth="11" />
-        <circle
-          cx="64"
-          cy="64"
-          r={radius}
-          fill="none"
-          stroke={tone.css}
-          strokeWidth="11"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference * (1 - Math.max(0, Math.min(100, score)) / 100)}
-          transform="rotate(-90 64 64)"
-          style={{ transition: 'stroke-dashoffset 700ms var(--ease-out-quint), stroke 300ms' }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-mono text-[34px] font-semibold leading-none tabular-nums text-fg sm:text-[38px]">
-          {score}
-        </span>
-        <span className="mt-1 text-[11px] uppercase tracking-wider text-fg-subtle">
-          grade {grade}
-        </span>
+    <div className="flex shrink-0 flex-col items-center">
+      <div className="relative">
+        <svg
+          viewBox="0 0 128 128"
+          className="h-[104px] w-[104px] sm:h-28 sm:w-28"
+          role="img"
+          aria-label={`${caption}: ${score} out of 100, grade ${grade}`}
+        >
+          <circle cx="64" cy="64" r={radius} fill="none" stroke="var(--line)" strokeWidth="11" />
+          <circle
+            cx="64"
+            cy="64"
+            r={radius}
+            fill="none"
+            stroke={tone.css}
+            strokeWidth="11"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - Math.max(0, Math.min(100, score)) / 100)}
+            transform="rotate(-90 64 64)"
+            style={{ transition: 'stroke-dashoffset 700ms var(--ease-out-quint), stroke 300ms' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="font-mono text-[30px] font-semibold leading-none tabular-nums text-fg">
+            {score}
+          </span>
+          <span className="mt-0.5 text-[10px] uppercase tracking-wider text-fg-subtle">{grade}</span>
+        </div>
       </div>
+      <span className="mt-1.5 text-[11.5px] font-medium text-fg-muted">{caption}</span>
+    </div>
+  );
+}
+
+/**
+ * The two numbers, side by side.
+ *
+ * Separate on purpose — a CV can be excellent and still be the wrong CV
+ * for the job. One blended figure tells the candidate neither, and the
+ * two problems have opposite fixes: rewrite the document, or aim it
+ * somewhere else. When there is nothing to be relevant to, the second
+ * ring is simply absent rather than showing an invented number.
+ */
+export function ScorePair({
+  score,
+  grade,
+  relevance,
+  relevanceGrade,
+  relevanceLabel,
+}: {
+  score: number;
+  grade: string;
+  relevance: number | null;
+  relevanceGrade: string | null;
+  relevanceLabel: string;
+}) {
+  return (
+    <div className="flex shrink-0 items-start gap-4 sm:gap-5">
+      <ScoreRing score={score} grade={grade} caption="CV quality" />
+      {relevance !== null && relevanceGrade !== null && (
+        <ScoreRing score={relevance} grade={relevanceGrade} caption={relevanceLabel} />
+      )}
     </div>
   );
 }
