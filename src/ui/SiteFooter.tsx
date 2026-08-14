@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Category } from '@core/categories';
 import { site } from '@core/site';
+import { GitHubIcon, XIcon } from './Icons';
 import { Logo } from './Logo';
 
 /**
@@ -98,28 +99,30 @@ export function SiteFooter({ categories, toolCount }: { categories: Category[]; 
           <p className="text-xs text-fg-subtle">
             © {new Date().getFullYear()} {site.legalName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="-ml-2 flex items-center gap-1 sm:-mr-2 sm:ml-0">
+            <a
+              href={`mailto:${site.contact.support}`}
+              className="-my-2 p-2 text-xs text-fg-subtle transition-colors hover:text-fg-muted"
+            >
+              {site.contact.support}
+            </a>
             <a
               href={site.social.github}
               rel="noopener noreferrer"
               target="_blank"
-              className="text-xs text-fg-subtle transition-colors hover:text-fg-muted"
+              aria-label={`${site.name} on GitHub`}
+              className="-my-2 p-2 text-fg-subtle transition-colors hover:text-fg-muted"
             >
-              GitHub
+              <GitHubIcon size={18} />
             </a>
             <a
               href={site.social.x}
               rel="noopener noreferrer"
               target="_blank"
-              className="text-xs text-fg-subtle transition-colors hover:text-fg-muted"
+              aria-label={`${site.name} on X`}
+              className="-my-2 p-2 text-fg-subtle transition-colors hover:text-fg-muted"
             >
-              X
-            </a>
-            <a
-              href={`mailto:${site.contact.support}`}
-              className="text-xs text-fg-subtle transition-colors hover:text-fg-muted"
-            >
-              {site.contact.support}
+              <XIcon size={15} />
             </a>
           </div>
         </div>
