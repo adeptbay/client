@@ -326,10 +326,17 @@ export function ToolCard({ tool, showCategory = false }: { tool: AnyTool; showCa
   return (
     <Link
       href={`/${tool.category}/${tool.slug}`}
-      className="group flex h-full flex-col rounded-xl border border-line bg-panel px-4 py-3.5
-                 transition-all hover:border-brand-line hover:bg-brand-soft"
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-panel px-4 py-3.5
+                 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-line hover:shadow-pop"
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Hover wash. A tinted fill rather than a flat colour swap, so the
+          card lifts without the text losing its contrast ratio. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-linear-to-br from-brand-soft to-transparent
+                   opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+      />
+      <div className="relative flex items-start justify-between gap-3">
         <h3 className="text-sm font-semibold text-fg">{tool.name}</h3>
         {tool.runtime === 'client' && (
           <Badge tone="brand" className="shrink-0">
@@ -337,12 +344,21 @@ export function ToolCard({ tool, showCategory = false }: { tool: AnyTool; showCa
           </Badge>
         )}
       </div>
-      <p className="mt-1 flex-1 text-[13px] leading-relaxed text-fg-muted">{tool.tagline}</p>
-      {showCategory && (
-        <span className="mt-2.5 font-mono text-[11px] uppercase tracking-wider text-fg-subtle">
-          {tool.category}
-        </span>
-      )}
+      <p className="relative mt-1 flex-1 text-[13px] leading-relaxed text-fg-muted">{tool.tagline}</p>
+      <div className="relative mt-2.5 flex items-center justify-between gap-3">
+        {showCategory ? (
+          <span className="font-mono text-[11px] uppercase tracking-wider text-fg-subtle">
+            {tool.category}
+          </span>
+        ) : (
+          <span />
+        )}
+        <ArrowRightIcon
+          size={15}
+          className="shrink-0 text-brand opacity-0 transition-all duration-200
+                     group-hover:translate-x-0.5 group-hover:opacity-100"
+        />
+      </div>
     </Link>
   );
 }

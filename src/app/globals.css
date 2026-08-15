@@ -103,6 +103,39 @@
    Components — only patterns repeated on every one of 1000 pages.
    ═══════════════════════════════════════════════════════════════════ */
 @layer components {
+  /* ── Hero decoration ─────────────────────────────────────────────
+     Two backdrop layers for the homepage banner. Both are pure CSS
+     gradients: no image request, no extra bytes on the LCP path, and
+     both read semantic tokens so dark mode needs no second definition.
+     Decorative only — always on an `aria-hidden` element. */
+
+  /* Fine engineering grid, faded out with a mask so it never reaches
+     an edge and never competes with the headline. */
+  .bay-grid {
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 0%, #000 5%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 75% at 50% 0%, #000 5%, transparent 75%);
+  }
+
+  /* A single brand wash. `color-mix` keeps the strength tied to the
+     brand token, so re-theming the site re-tints the hero with it. */
+  .bay-glow {
+    background:
+      radial-gradient(
+        40rem 24rem at 8% -12%,
+        color-mix(in oklab, var(--brand) 16%, transparent),
+        transparent 68%
+      ),
+      radial-gradient(
+        34rem 22rem at 92% -6%,
+        color-mix(in oklab, var(--brand) 10%, transparent),
+        transparent 70%
+      );
+  }
+
   /* Scrollbars inside tool panels; the default Windows bar is 17px of
      grey that wrecks a dark UI. */
   .scroll-slim {
