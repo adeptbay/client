@@ -66,6 +66,23 @@ const adHosts = {
   ],
 };
 
+/**
+ * Clarity load-balances across lettered subdomains in production
+ * (learn.microsoft.com/clarity/setup-and-installation/clarity-csp), so
+ * a single origin isn't enough for connect-src.
+ */
+const clarityEnabled = Boolean(process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID);
+const clarityHosts = {
+  // The loader tag comes from www.clarity.ms, but it in turn loads a
+  // second script from scripts.clarity.ms and beacons a tracking pixel
+  // from c.clarity.ms — confirmed by watching a real page load, since
+  // Microsoft's own CSP doc only mentions the loader host.
+  script: ['https://*.clarity.ms'],
+  connect: ['https://*.clarity.ms', 'https://c.bing.com'],
+  // c.bing.com also fires a cross-sync tracking pixel via <img>, not just XHR.
+  img: ['https://*.clarity.ms', 'https://c.bing.com'],
+};
+
 const when = (condition, values) => (condition ? values : []);
 
 const csp = [
@@ -84,10 +101,14 @@ const csp = [
       // 'unsafe-eval' is only needed by the dev server's source maps.
       isDev ? "'unsafe-eval'" : "'wasm-unsafe-eval'",
       ...when(adsEnabled, adHosts.script),
+      ...when(clarityEnabled, clarityHosts.script),
     ],
   ],
   ['style-src', ["'self'", "'unsafe-inline'"]],
-  ['img-src', ["'self'", 'data:', 'blob:', ...when(adsEnabled, adHosts.img)]],
+  [
+    'img-src',
+    ["'self'", 'data:', 'blob:', ...when(adsEnabled, adHosts.img), ...when(clarityEnabled, clarityHosts.img)],
+  ],
   ['font-src', ["'self'", 'data:']],
   [
     'connect-src',
@@ -97,6 +118,7 @@ const csp = [
       'data:',
       ...when(Boolean(analyticsOrigin), [analyticsOrigin]),
       ...when(adsEnabled, adHosts.connect),
+      ...when(clarityEnabled, clarityHosts.connect),
     ],
   ],
   ['worker-src', ["'self'", 'blob:']],

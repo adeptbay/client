@@ -7,6 +7,7 @@ import { jsonLd, organizationSchema, websiteSchema } from "@core/schema";
 import { SiteHeader } from "@ui/SiteHeader";
 import { SiteFooter } from "@ui/SiteFooter";
 import { ToastHost } from "@ui/Feedback";
+import { ClarityAnalytics } from "@ui/ClarityAnalytics";
 import { themeBootstrapScript } from "@ui/ThemeToggle";
 import "./globals.css";
 
@@ -108,6 +109,7 @@ export default function RootLayout({
 
         <SiteFooter categories={categories} toolCount={count} />
         <ToastHost />
+        <ClarityAnalytics />
       </body>
     </html>
   );
