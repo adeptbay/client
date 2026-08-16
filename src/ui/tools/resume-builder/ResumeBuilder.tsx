@@ -318,7 +318,10 @@ export function ResumeBuilder() {
                   }
                   placeholder="Frontend"
                   aria-label={`Skill group ${i + 1}`}
-                  className="w-[34%]"
+                  // Same cascade trap as the link rows; `basis-1/3` keeps the
+                  // third the author intended, since the items field beside it
+                  // holds a whole comma-separated list.
+                  className="min-w-0 basis-1/3"
                 />
                 <Input
                   value={group.items}
@@ -327,11 +330,12 @@ export function ResumeBuilder() {
                   }
                   placeholder="Next.js, React, Tailwind CSS"
                   aria-label={`Skills in group ${i + 1}`}
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
                 <Button
                   size="sm"
                   variant="ghost"
+                  className="shrink-0"
                   onClick={() => patch({ skills: doc.skills.filter((_, k) => k !== i) })}
                   aria-label={`Remove skill group ${i + 1}`}
                 >
@@ -603,23 +607,29 @@ function LinkRows({
       <div className="mt-1 space-y-1.5">
         {links.map((link, i) => (
           <div key={i} className="flex items-center gap-1.5">
+            {/* Both fields size from flex-basis, not width. `Input`'s base
+                class already sets `w-full`, and Tailwind emits `w-full`
+                after any arbitrary width, so a `w-[30%]` here silently lost
+                the cascade and collapsed the URL field. `min-w-0` lets them
+                shrink past an input's intrinsic ~20ch width in this column. */}
             <Input
               value={link.label}
               onChange={(e) => set(i, { label: e.target.value })}
               placeholder={compact ? 'Live' : 'Portfolio'}
               aria-label={`Link label ${i + 1}`}
-              className="w-[30%]"
+              className="min-w-0 flex-1"
             />
             <Input
               value={link.url}
               onChange={(e) => set(i, { url: e.target.value })}
               placeholder="github.com/you"
               aria-label={`Link URL ${i + 1}`}
-              className="flex-1"
+              className="min-w-0 flex-1"
             />
             <Button
               size="sm"
               variant="ghost"
+              className="shrink-0"
               onClick={() => onChange(links.filter((_, k) => k !== i))}
               aria-label={`Remove link ${i + 1}`}
             >
