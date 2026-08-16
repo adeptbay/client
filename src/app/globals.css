@@ -49,6 +49,27 @@
     outline: none;
   }
 
+  /* Text-entry controls are the one exception. They already draw a
+     border, so an offset ring outside it stacks a second frame around
+     the same box — worst in a dense form like the resume builder, where
+     every field then reads as two rectangles. The border carries the
+     focus instead, which is what the editor panels already do. Buttons,
+     links, checkboxes, radios and sliders keep the ring above. */
+  input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="range"],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"]
+    ):focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    border-color: var(--brand);
+  }
+
   ::selection {
     background-color: var(--brand-line);
     color: var(--fg);
