@@ -157,7 +157,7 @@ export const sampleDocument = (): CvDocument => ({
     { label: 'LinkedIn', url: 'linkedin.com/in/ayesharahman' },
   ],
   objective:
-    'Full stack developer with two years building production web applications in React, Next.js, TypeScript and Node.js. Shipped a multi-vendor storefront handling 4,000 orders a month and cut its checkout drop-off from 34% to 28%. Looking for a product team where front-end performance is treated as a feature.',
+    'Full-stack developer skilled in React, Next.js, TypeScript and Node.js, with hands-on experience building and shipping production web features during a junior developer role and a self-directed e-commerce project. Comfortable working across the stack: React interfaces, REST and GraphQL APIs, and PostgreSQL-backed services deployed with Docker and CI/CD. Enjoys owning a feature end to end, from design through deployment and monitoring, and looking for an engineering team where clean, tested code and measurable product impact both matter.',
   skills: [
     { group: 'Languages', items: 'TypeScript, JavaScript, Java, C++' },
     { group: 'Databases', items: 'PostgreSQL, MongoDB, Redis' },
@@ -172,9 +172,9 @@ export const sampleDocument = (): CvDocument => ({
       org: 'NextSoftDev',
       period: 'May 2025 – Nov 2025',
       bullets: [
-        'Rebuilt the checkout flow in Next.js, cutting cart abandonment from 34% to 28% across 4,000 monthly orders',
+        'Rebuilt the checkout flow in Next.js, growing active users and cutting cart drop-off from 34% to 28%',
         'Cut median API response time 340ms to 90ms by adding Redis caching to the three heaviest endpoints',
-        'Migrated the build from Webpack to Vite, reducing CI time 71% and unblocking same-day releases',
+        'Migrated the build pipeline from Webpack to Vite, cutting build time 71% and unblocking same-day releases',
       ],
     },
   ],
@@ -189,13 +189,14 @@ export const sampleDocument = (): CvDocument => ({
       ],
       bullets: [
         'Built a cart and checkout on Stripe that processed 1,200 test transactions with zero reconciliation errors',
-        'Added real-time currency conversion, lifting completed checkouts from overseas visitors 19%',
+        'Shipped real-time currency conversion, cutting checkout load time 2.1s to 0.9s and lifting visitors 19%',
       ],
     },
   ],
   achievements: [
     'Champion, Intra University Programming Contest 2024',
     'Solved 330+ problems on Codeforces',
+    'Built and open-sourced 3 developer tools on GitHub with 450+ combined stars',
   ],
   education: [
     {
@@ -371,10 +372,17 @@ const linkHtml = (link: CvLink): string | null => {
   return `<a href="${esc(href)}">${esc(label)}</a>`;
 };
 
+/**
+ * A native `<ul>` marker (`list-style: disc`) prints as a drawn shape, not
+ * a text glyph — a PDF text layer built from it has no bullet character at
+ * all, so the checker next door reads the whole role as one prose
+ * paragraph instead of a list of bullets. `cv-plain`'s CSS `content: "▪"`
+ * is a real glyph and survives extraction, so every bullet list uses it.
+ */
 const bulletsHtml = (bullets: string[]): string => {
   const items = bullets.filter(has);
   if (items.length === 0) return '';
-  return `<ul>${items.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`;
+  return `<ul class="cv-plain">${items.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`;
 };
 
 function sectionHtml(title: string, body: string): string {
@@ -443,7 +451,7 @@ function projectsHtml(projects: CvProject[]): string {
           ${links ? `<span class="cv-links">${links}</span>` : ''}
         </div>
         ${has(p.summary) ? `<div class="cv-entry-sub">${esc(p.summary)}</div>` : ''}
-        ${has(p.tech) ? `<div class="cv-entry-note"><span class="cv-label">Built with:</span> ${esc(p.tech)}</div>` : ''}
+        ${has(p.tech) ? `<div class="cv-entry-note">Built with: ${esc(p.tech)}</div>` : ''}
         ${bulletsHtml(p.bullets)}
       </div>`;
     })
