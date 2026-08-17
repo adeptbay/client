@@ -56,6 +56,34 @@ const STORAGE_KEY = 'adeptbay.cv.v1';
 /** A4 width in CSS pixels at 96dpi, which is what the preview is drawn at. */
 const A4_PX = 794;
 
+/* ── Demo placeholders ──────────────────────────────────────────────
+   Every hint in this form belongs to one person: the same person
+   "Load sample" fills in (`sampleDocument`). A form whose name hint is
+   one person and whose email hint is another reads as broken sample
+   data rather than as a worked example.
+
+   The rows below are indexed, not repeated. Three link rows all hinting
+   "Portfolio / github.com/you" is one hint printed three times, and it
+   never says what belongs in row two — which is the whole reason the
+   row exists. `i % length` keeps a hint on rows the user adds later. */
+const DEMO_LINKS: CvLink[] = [
+  { label: 'Portfolio', url: 'ayesharahman.dev' },
+  { label: 'GitHub', url: 'github.com/ayesharahman' },
+  { label: 'LinkedIn', url: 'linkedin.com/in/ayesharahman' },
+];
+
+const DEMO_PROJECT_LINKS: CvLink[] = [
+  { label: 'Live', url: 'furnicraft.example.com' },
+  { label: 'Code', url: 'github.com/ayesharahman/furnicraft' },
+];
+
+const DEMO_SKILLS = [
+  { group: 'Languages', items: 'TypeScript, JavaScript, Java, C++' },
+  { group: 'Frontend', items: 'Next.js, React, Tailwind CSS, Zustand' },
+  { group: 'Backend', items: 'Node.js, Express, Prisma, PostgreSQL' },
+  { group: 'Tools', items: 'Git, Docker, Postman, Vercel' },
+];
+
 type SectionKey = 'basics' | 'summary' | 'skills' | 'experience' | 'projects' | 'achievements' | 'education';
 
 export function ResumeBuilder() {
@@ -258,15 +286,21 @@ export function ResumeBuilder() {
             onToggle={() => setOpen(open === 'basics' ? 'summary' : 'basics')}
           >
             <div className="grid gap-2.5 sm:grid-cols-2">
-              <TextField label="Full name" value={doc.name} onChange={(v) => patch({ name: v })} placeholder="Fahim Muntasir" />
+              <TextField label="Full name" value={doc.name} onChange={(v) => patch({ name: v })} placeholder="Ayesha Rahman" />
               <TextField
                 label="Job title"
                 value={doc.title}
                 onChange={(v) => patch({ title: v })}
                 placeholder="Junior Full Stack Developer"
               />
-              <TextField label="Email" type="email" value={doc.email} onChange={(v) => patch({ email: v })} placeholder="you@example.com" />
-              <TextField label="Phone" value={doc.phone} onChange={(v) => patch({ phone: v })} placeholder="+880 1XXX XXXXXX" />
+              <TextField
+                label="Email"
+                type="email"
+                value={doc.email}
+                onChange={(v) => patch({ email: v })}
+                placeholder="ayesha.rahman@example.com"
+              />
+              <TextField label="Phone" value={doc.phone} onChange={(v) => patch({ phone: v })} placeholder="+880 1712 345678" />
             </div>
             <TextField
               label="Location"
@@ -309,40 +343,43 @@ export function ResumeBuilder() {
             open={open === 'skills'}
             onToggle={() => setOpen(open === 'skills' ? 'basics' : 'skills')}
           >
-            {doc.skills.map((group, i) => (
-              <div key={i} className="flex items-start gap-1.5">
-                <Input
-                  value={group.group}
-                  onChange={(e) =>
-                    patch({ skills: doc.skills.map((s, k) => (k === i ? { ...s, group: e.target.value } : s)) })
-                  }
-                  placeholder="Frontend"
-                  aria-label={`Skill group ${i + 1}`}
-                  // Same cascade trap as the link rows; `basis-1/3` keeps the
-                  // third the author intended, since the items field beside it
-                  // holds a whole comma-separated list.
-                  className="min-w-0 basis-1/3"
-                />
-                <Input
-                  value={group.items}
-                  onChange={(e) =>
-                    patch({ skills: doc.skills.map((s, k) => (k === i ? { ...s, items: e.target.value } : s)) })
-                  }
-                  placeholder="Next.js, React, Tailwind CSS"
-                  aria-label={`Skills in group ${i + 1}`}
-                  className="min-w-0 flex-1"
-                />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="shrink-0"
-                  onClick={() => patch({ skills: doc.skills.filter((_, k) => k !== i) })}
-                  aria-label={`Remove skill group ${i + 1}`}
-                >
-                  ×
-                </Button>
-              </div>
-            ))}
+            {doc.skills.map((group, i) => {
+              const hint = DEMO_SKILLS[i % DEMO_SKILLS.length]!;
+              return (
+                <div key={i} className="flex items-start gap-1.5">
+                  <Input
+                    value={group.group}
+                    onChange={(e) =>
+                      patch({ skills: doc.skills.map((s, k) => (k === i ? { ...s, group: e.target.value } : s)) })
+                    }
+                    placeholder={hint.group}
+                    aria-label={`Skill group ${i + 1}`}
+                    // Same cascade trap as the link rows; `basis-1/3` keeps the
+                    // third the author intended, since the items field beside it
+                    // holds a whole comma-separated list.
+                    className="min-w-0 basis-1/3"
+                  />
+                  <Input
+                    value={group.items}
+                    onChange={(e) =>
+                      patch({ skills: doc.skills.map((s, k) => (k === i ? { ...s, items: e.target.value } : s)) })
+                    }
+                    placeholder={hint.items}
+                    aria-label={`Skills in group ${i + 1}`}
+                    className="min-w-0 flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="shrink-0"
+                    onClick={() => patch({ skills: doc.skills.filter((_, k) => k !== i) })}
+                    aria-label={`Remove skill group ${i + 1}`}
+                  >
+                    ×
+                  </Button>
+                </div>
+              );
+            })}
             <Button
               size="sm"
               variant="ghost"
@@ -473,7 +510,7 @@ export function ResumeBuilder() {
                     label="Qualification"
                     value={entry.degree}
                     onChange={(v) => set({ degree: v })}
-                    placeholder="BSc in Computer Science &amp; Engineering"
+                    placeholder="BSc in Computer Science & Engineering"
                   />
                   <TextField
                     label="Institution"
@@ -601,42 +638,49 @@ function LinkRows({
   const set = (i: number, patch: Partial<CvLink>) =>
     onChange(links.map((l, k) => (k === i ? { ...l, ...patch } : l)));
 
+  // A project links to its deployment and its repository; a person links
+  // to a portfolio, a profile and a network. Different rows, different hints.
+  const hints = compact ? DEMO_PROJECT_LINKS : DEMO_LINKS;
+
   return (
     <div>
       <span className="block text-[12px] font-medium text-fg-muted">Links</span>
       <div className="mt-1 space-y-1.5">
-        {links.map((link, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            {/* Both fields size from flex-basis, not width. `Input`'s base
-                class already sets `w-full`, and Tailwind emits `w-full`
-                after any arbitrary width, so a `w-[30%]` here silently lost
-                the cascade and collapsed the URL field. `min-w-0` lets them
-                shrink past an input's intrinsic ~20ch width in this column. */}
-            <Input
-              value={link.label}
-              onChange={(e) => set(i, { label: e.target.value })}
-              placeholder={compact ? 'Live' : 'Portfolio'}
-              aria-label={`Link label ${i + 1}`}
-              className="min-w-0 flex-1"
-            />
-            <Input
-              value={link.url}
-              onChange={(e) => set(i, { url: e.target.value })}
-              placeholder="github.com/you"
-              aria-label={`Link URL ${i + 1}`}
-              className="min-w-0 flex-1"
-            />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="shrink-0"
-              onClick={() => onChange(links.filter((_, k) => k !== i))}
-              aria-label={`Remove link ${i + 1}`}
-            >
-              ×
-            </Button>
-          </div>
-        ))}
+        {links.map((link, i) => {
+          const hint = hints[i % hints.length]!;
+          return (
+            <div key={i} className="flex items-center gap-1.5">
+              {/* Both fields size from flex-basis, not width. `Input`'s base
+                  class already sets `w-full`, and Tailwind emits `w-full`
+                  after any arbitrary width, so a `w-[30%]` here silently lost
+                  the cascade and collapsed the URL field. `min-w-0` lets them
+                  shrink past an input's intrinsic ~20ch width in this column. */}
+              <Input
+                value={link.label}
+                onChange={(e) => set(i, { label: e.target.value })}
+                placeholder={hint.label}
+                aria-label={`Link label ${i + 1}`}
+                className="min-w-0 flex-1"
+              />
+              <Input
+                value={link.url}
+                onChange={(e) => set(i, { url: e.target.value })}
+                placeholder={hint.url}
+                aria-label={`Link URL ${i + 1}`}
+                className="min-w-0 flex-1"
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="shrink-0"
+                onClick={() => onChange(links.filter((_, k) => k !== i))}
+                aria-label={`Remove link ${i + 1}`}
+              >
+                ×
+              </Button>
+            </div>
+          );
+        })}
       </div>
       <Button size="sm" variant="ghost" className="mt-1" onClick={() => onChange([...links, { label: '', url: '' }])}>
         + Add link
