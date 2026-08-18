@@ -42,6 +42,12 @@ export const runners: Record<string, Runner> = {
   'base64-encoder': () => import('./developer/base64-encoder'),
   'url-encoder': () => import('./developer/url-encoder'),
   'uuid-generator': () => import('./developer/uuid-generator'),
+  'regex-tester': () => import('./developer/regex-tester'),
+  'jwt-decoder': () => import('./developer/jwt-decoder'),
+  'json-to-csv': () => import('./developer/json-to-csv'),
+  'json-to-yaml': () => import('./developer/json-to-yaml'),
+  'json-diff': () => import('./developer/json-diff'),
+  'json-to-typescript': () => import('./developer/json-to-typescript'),
 
   // security
   'password-generator': () => import('./security/password-generator'),

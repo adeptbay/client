@@ -27,6 +27,13 @@ export const CHANGE_LABELS: Record<ChangeKind, string> = {
 
 export const changelog: ChangeEntry[] = [
   {
+    date: '2026-08-17',
+    kind: 'added',
+    title: 'Six developer tools — the JSON cluster closes and two more open',
+    detail:
+      'JSON to CSV, JSON to YAML, JSON Diff, JSON to TypeScript, JWT Decoder and Regex Tester. 30 tools live. Each one exists because the common version of it is wrong in a specific way. JSON to CSV builds its header from every record rather than the first, so a field that appears at record 40 is not silently dropped from an export that looks complete. JSON to YAML quotes the strings YAML would misread — "NO" loads back as false, "1.20" as the number 1.2, "09:30" as 570 — and lists which ones it quoted. JSON Diff compares parsed values, so reordered keys and reindentation are not changes and a type change is reported apart from a value change. JSON to TypeScript merges every element of every array instead of typing from the first, so a key missing from some records becomes optional rather than promised. The JWT Decoder verifies HS256, HS384 and HS512 signatures with Web Crypto and judges exp and nbf against the clock, because "why is this 401" is the actual question. The Regex Tester refuses catastrophically backtracking patterns before they run, since JavaScript cannot interrupt one and the tab does not recover.',
+  },
+  {
     date: '2026-08-13',
     kind: 'added',
     title: 'CV / Resume Builder — free PDF, no account, no export wall',

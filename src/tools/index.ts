@@ -32,7 +32,13 @@ import wordCounter from './text/word-counter';
 
 // ── developer ─────────────────────────────────────────────────────
 import base64Encoder from './developer/base64-encoder';
+import jsonDiff from './developer/json-diff';
 import jsonFormatter from './developer/json-formatter';
+import jsonToCsv from './developer/json-to-csv';
+import jsonToTypescript from './developer/json-to-typescript';
+import jsonToYaml from './developer/json-to-yaml';
+import jwtDecoder from './developer/jwt-decoder';
+import regexTester from './developer/regex-tester';
 import urlEncoder from './developer/url-encoder';
 import uuidGenerator from './developer/uuid-generator';
 
@@ -70,6 +76,12 @@ export const allTools: ToolDefinition<never, never>[] = [
   base64Encoder,
   urlEncoder,
   uuidGenerator,
+  regexTester,
+  jwtDecoder,
+  jsonToCsv,
+  jsonToYaml,
+  jsonDiff,
+  jsonToTypescript,
 
   // security
   passwordGenerator,

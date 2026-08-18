@@ -87,6 +87,28 @@ export function parseJson(source: string): unknown {
   }
 }
 
+/**
+ * Turn a parse failure into the message and hint a tool shows.
+ *
+ * Every tool in the JSON cluster needs the same three lines — resolve
+ * the position, quote the line, point at the character — and a copy of
+ * them in each tool file is four places for the wording to drift. The
+ * `where` label is the only part that varies, because a comparison tool
+ * has to say *which* of its two inputs failed.
+ */
+export function describeJsonError(err: unknown, where = ''): { message: string; hint?: string } {
+  if (!(err instanceof JsonParseError)) {
+    return { message: err instanceof Error ? err.message : 'The input could not be parsed.' };
+  }
+
+  const d = err.detail;
+  const prefix = where === '' ? '' : `${where}: `;
+  const at = d.line > 0 ? `Line ${d.line}, column ${d.column}` : 'Invalid JSON';
+  const quoted = d.excerpt ? `\n\n  ${d.excerpt}\n  ${d.pointer}` : '';
+
+  return { message: `${prefix}${at} — ${d.message}${quoted}`, hint: d.hint };
+}
+
 export type IndentStyle = '2' | '4' | 'tab';
 
 const indentOf = (style: IndentStyle): string | number =>
