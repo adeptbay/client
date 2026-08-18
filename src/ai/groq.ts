@@ -34,11 +34,13 @@ const MODEL_CHAIN: string[] = (process.env.GROQ_MODELS ?? '')
   .map((m) => m.trim())
   .filter(Boolean);
 
-const DEFAULT_CHAIN = [
-  'llama-3.3-70b-versatile',
-  'openai/gpt-oss-120b',
-  'llama-3.1-8b-instant',
-];
+/**
+ * Groq deprecated the Llama 3.x chat models on 2026-06-17 and stopped
+ * serving them entirely in August 2026 — `llama-3.3-70b-versatile` and
+ * `llama-3.1-8b-instant` both 404 now. These are Groq's own replacements:
+ * https://console.groq.com/docs/deprecations
+ */
+const DEFAULT_CHAIN = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
 
 /** Groq bills per token; these are only used to attribute spend. */
 const PRICE_PER_MTOK = { input: 0.59, output: 0.79 };
@@ -157,6 +159,24 @@ export async function generate(request: GroqRequest): Promise<GroqResponse> {
           max_tokens: maxTokens,
           top_p: 0.9,
           stream: false,
+          /**
+           * Both current chain models are GPT-OSS reasoning models,
+           * which spend output-token budget on hidden chain-of-thought
+           * before writing the answer. At the default ('medium') that
+           * reasoning alone can exceed `maxTokens`, truncating the JSON
+           * answer before it is complete. 'low' leaves enough budget
+           * for a finished answer and is also faster and cheaper.
+           *
+           * This is not a universal no-op: a model that does not
+           * support `reasoning_effort` (confirmed on qwen and Groq's
+           * compound models) 400s on it rather than ignoring it. That
+           * 400 does not match `isModelGone` below, so it falls through
+           * to `continue` like any other error and the chain moves to
+           * the next model — wasteful, not broken — but if a
+           * non-GPT-OSS model is ever added to the chain, gate this
+           * field on the model id rather than assuming it is harmless.
+           */
+          reasoning_effort: 'low',
           ...(request.json ? { response_format: { type: 'json_object' } } : {}),
         }),
         // A model call must never hold a serverless function open.
