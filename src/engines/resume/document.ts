@@ -159,12 +159,12 @@ export const sampleDocument = (): CvDocument => ({
   objective:
     'Full-stack developer skilled in React, Next.js, TypeScript and Node.js, with hands-on experience building and shipping production web features during a junior developer role and a self-directed e-commerce project. Comfortable working across the stack: React interfaces, REST and GraphQL APIs, and PostgreSQL-backed services deployed with Docker and CI/CD. Enjoys owning a feature end to end, from design through deployment and monitoring, and looking for an engineering team where clean, tested code and measurable product impact both matter.',
   skills: [
-    { group: 'Languages', items: 'TypeScript, JavaScript, Java, C++' },
+    { group: 'Languages', items: 'TypeScript, JavaScript, Python, Java, C++' },
+    { group: 'Frontend', items: 'React, Next.js, Zustand, Tailwind CSS' },
+    { group: 'Backend', items: 'Node.js, Express, NestJS, Prisma, REST & GraphQL APIs' },
     { group: 'Databases', items: 'PostgreSQL, MongoDB, Redis' },
-    { group: 'Frontend', items: 'Next.js, React, Tailwind CSS, Zustand' },
-    { group: 'Backend', items: 'Node.js, Express, NestJS, Prisma' },
-    { group: 'API', items: 'REST, GraphQL' },
-    { group: 'Tools', items: 'Git, Docker, Postman, Vercel' },
+    { group: 'DevOps & Cloud', items: 'Docker, GitHub Actions, AWS, Vercel' },
+    { group: 'Testing & Tools', items: 'Jest, Cypress, Git, Postman' },
   ],
   experience: [
     {
@@ -185,7 +185,7 @@ export const sampleDocument = (): CvDocument => ({
       tech: 'TypeScript, GraphQL, MongoDB, Node.js, Express, Zustand, Stripe',
       links: [
         { label: 'Live', url: 'furnicraft.example.com' },
-        { label: 'Code', url: 'github.com/ayesharahman/furnicraft' },
+        { label: 'Code', url: 'github.com/muntasir3301/furnicraft' },
       ],
       bullets: [
         'Built a cart and checkout on Stripe that processed 1,200 test transactions with zero reconciliation errors',
@@ -342,11 +342,14 @@ export const RESUME_CSS = `
   line-height: 1.9;
 }
 
-/* ── Skills grid ── */
+/* ── Skills grid ──
+   Single column: a two-column grid reorders into gibberish once an ATS
+   parser flattens the PDF text layer left-to-right, top-to-bottom across
+   both columns instead of down one at a time. */
 .cv-skills {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 20px;
+  grid-template-columns: 1fr;
+  gap: 3px;
 }
 .cv-skills > div { break-inside: avoid; }
 
