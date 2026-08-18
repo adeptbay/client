@@ -164,7 +164,7 @@ export const categories: Category[] = [
     title: 'CV & Career Tools',
     tagline: 'CVs, cover letters and applications — written, checked, and never uploaded.',
     description:
-      'Build a CV, check it the way an applicant tracking system reads it, and write the letter that goes with it. These documents hold your address, phone number and work history, so all of them run in your browser.',
+      'Build a CV, check it against an ATS, and write the letter to go with it. These hold your address and work history — none of it leaves your browser.',
     target: 60,
     tier: 2,
     role: 'The highest-intent traffic on the site: the CPC of the business division with the volume of the student one, and the shortest path from a free tool to a paid one.',

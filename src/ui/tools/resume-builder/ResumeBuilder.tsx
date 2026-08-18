@@ -233,10 +233,10 @@ export function ResumeBuilder() {
           <span className="font-mono text-[11px] text-fg-subtle">
             {progress.done}/{progress.total}
           </span>
-          <Button size="sm" variant="ghost" onClick={() => setDoc(sampleDocument())}>
+          <Button size="sm" variant="secondary" onClick={() => setDoc(sampleDocument())}>
             Sample
           </Button>
-          <Button size="sm" variant="ghost" onClick={reset}>
+          <Button size="sm" variant="secondary" onClick={reset}>
             Clear
           </Button>
           <DownloadButton
