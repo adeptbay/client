@@ -331,17 +331,33 @@ export function AiReviewPanel({
 function Column({ title, tone, items }: { title: string; tone: 'ok' | 'warn'; items: string[] }) {
   if (items.length === 0) return null;
 
+  const isOk = tone === 'ok';
+
   return (
-    <div>
-      <p className="text-[11px] font-medium uppercase tracking-wider text-fg-subtle">{title}</p>
-      <ul className="mt-1.5 space-y-1.5">
+    <div
+      className={cx(
+        'rounded-lg border p-3',
+        isOk ? 'border-brand-line bg-brand-soft' : 'border-warn-line bg-warn-soft',
+      )}
+    >
+      <p
+        className={cx(
+          'flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider',
+          isOk ? 'text-brand-text' : 'text-warn',
+        )}
+      >
+        {isOk ? <CheckIcon size={12} /> : <AlertIcon size={12} />}
+        {title}
+      </p>
+      <ul className="mt-2 space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-[13px] leading-snug text-fg-muted">
-            {tone === 'ok' ? (
-              <CheckIcon size={13} className="mt-1 shrink-0 text-brand-text" />
-            ) : (
-              <span className={cx('mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-warn')} />
-            )}
+          <li key={i} className="flex items-start gap-2 text-[13.5px] leading-relaxed text-fg-muted">
+            <span
+              className={cx(
+                'mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full',
+                isOk ? 'bg-brand-text' : 'bg-warn',
+              )}
+            />
             {item}
           </li>
         ))}
