@@ -168,6 +168,16 @@ export const sampleDocument = (): CvDocument => ({
   ],
   experience: [
     {
+      role: 'Software Developer',
+      org: 'Expreer',
+      period: 'Feb 2026 – Present',
+      bullets: [
+        'Build and ship user-facing features in React and Next.js, working closely with design and product to turn requirements into production UI',
+        'Growing into full-stack ownership, contributing to backend APIs and data-layer work alongside day-to-day frontend development',
+        'Collaborate with backend engineers on API contracts and take part in code review to keep the codebase consistent and maintainable',
+      ],
+    },
+    {
       role: 'Junior Full Stack Developer',
       org: 'NextSoftDev',
       period: 'May 2025 – Nov 2025',
@@ -180,22 +190,19 @@ export const sampleDocument = (): CvDocument => ({
   ],
   projects: [
     {
-      name: 'Furnicraft',
-      summary: 'Multi-vendor e-commerce platform with secure payments',
-      tech: 'TypeScript, GraphQL, MongoDB, Node.js, Express, Zustand, Stripe',
-      links: [
-        { label: 'Live', url: 'furnicraft.example.com' },
-        { label: 'Code', url: 'github.com/muntasir3301/furnicraft' },
-      ],
+      name: 'One Click Travel — Admin Dashboard',
+      summary: 'Internal admin platform for a flight, hotel and vacation-package booking site',
+      tech: 'Next.js, React, TypeScript, Tailwind CSS',
+      links: [{ label: 'Live', url: 'dev-admin.one-clicktravel.com' }],
       bullets: [
-        'Built a cart and checkout on Stripe that processed 1,200 test transactions with zero reconciliation errors',
-        'Shipped real-time currency conversion, cutting checkout load time 2.1s to 0.9s and lifting visitors 19%',
+        'Built the Travel Management module of the admin dashboard — the screens used to create, edit and publish the flights, hotels and vacation packages sold on the public site',
+        'Owned the module end to end as the frontend engineer, from component structure through to the shipped production screens',
       ],
     },
   ],
   achievements: [
     'Champion, Intra University Programming Contest 2024',
-    'Solved 330+ problems on Codeforces',
+    'Solved 750+ problems on Codeforces',
     'Built and open-sourced 3 developer tools on GitHub with 450+ combined stars',
   ],
   education: [
