@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Category } from '@core/categories';
 import { site } from '@core/site';
-import { GitHubIcon, XIcon } from './Icons';
+import { XIcon } from './Icons';
 import { Logo } from './Logo';
 
 /**
@@ -105,15 +105,6 @@ export function SiteFooter({ categories, toolCount }: { categories: Category[]; 
               className="-my-2 p-2 text-xs text-fg-subtle transition-colors hover:text-fg-muted"
             >
               {site.contact.support}
-            </a>
-            <a
-              href={site.social.github}
-              rel="noopener noreferrer"
-              target="_blank"
-              aria-label={`${site.name} on GitHub`}
-              className="-my-2 p-2 text-fg-subtle transition-colors hover:text-fg-muted"
-            >
-              <GitHubIcon size={18} />
             </a>
             <a
               href={site.social.x}
