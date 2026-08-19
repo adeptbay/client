@@ -60,29 +60,24 @@ const A4_PX = 794;
    Every hint in this form belongs to one person: the same person
    "Load sample" fills in (`sampleDocument`). A form whose name hint is
    one person and whose email hint is another reads as broken sample
-   data rather than as a worked example.
+   data rather than as a worked example. So the hints are read off
+   `sampleDocument()` itself rather than retyped — the two cannot drift
+   apart, because they are the same document.
 
    The rows below are indexed, not repeated. Three link rows all hinting
    "Portfolio / github.com/you" is one hint printed three times, and it
    never says what belongs in row two — which is the whole reason the
    row exists. `i % length` keeps a hint on rows the user adds later. */
-const DEMO_LINKS: CvLink[] = [
-  { label: 'Portfolio', url: 'ayesharahman.dev' },
-  { label: 'GitHub', url: 'github.com/ayesharahman' },
-  { label: 'LinkedIn', url: 'linkedin.com/in/ayesharahman' },
-];
+const DEMO = sampleDocument();
+
+const DEMO_LINKS: CvLink[] = DEMO.links;
 
 const DEMO_PROJECT_LINKS: CvLink[] = [
-  { label: 'Live', url: 'furnicraft.example.com' },
-  { label: 'Code', url: 'github.com/ayesharahman/furnicraft' },
+  DEMO.projects[0]!.links[0]!,
+  { label: 'Code', url: 'github.com/muntasir3301/one-click-travel-admin' },
 ];
 
-const DEMO_SKILLS = [
-  { group: 'Languages', items: 'TypeScript, JavaScript, Java, C++' },
-  { group: 'Frontend', items: 'Next.js, React, Tailwind CSS, Zustand' },
-  { group: 'Backend', items: 'Node.js, Express, Prisma, PostgreSQL' },
-  { group: 'Tools', items: 'Git, Docker, Postman, Vercel' },
-];
+const DEMO_SKILLS = DEMO.skills;
 
 type SectionKey = 'basics' | 'summary' | 'skills' | 'experience' | 'projects' | 'achievements' | 'education';
 
@@ -286,27 +281,27 @@ export function ResumeBuilder() {
             onToggle={() => setOpen(open === 'basics' ? 'summary' : 'basics')}
           >
             <div className="grid gap-2.5 sm:grid-cols-2">
-              <TextField label="Full name" value={doc.name} onChange={(v) => patch({ name: v })} placeholder="Ayesha Rahman" />
+              <TextField label="Full name" value={doc.name} onChange={(v) => patch({ name: v })} placeholder={DEMO.name} />
               <TextField
                 label="Job title"
                 value={doc.title}
                 onChange={(v) => patch({ title: v })}
-                placeholder="Junior Full Stack Developer"
+                placeholder={DEMO.title}
               />
               <TextField
                 label="Email"
                 type="email"
                 value={doc.email}
                 onChange={(v) => patch({ email: v })}
-                placeholder="ayesha.rahman@example.com"
+                placeholder={DEMO.email}
               />
-              <TextField label="Phone" value={doc.phone} onChange={(v) => patch({ phone: v })} placeholder="+880 1712 345678" />
+              <TextField label="Phone" value={doc.phone} onChange={(v) => patch({ phone: v })} placeholder={DEMO.phone} />
             </div>
             <TextField
               label="Location"
               value={doc.location}
               onChange={(v) => patch({ location: v })}
-              placeholder="Dhaka, Bangladesh"
+              placeholder={DEMO.location}
             />
 
             <LinkRows links={doc.links} onChange={(links) => patch({ links })} />
@@ -407,21 +402,21 @@ export function ResumeBuilder() {
               render={(role, set) => (
                 <>
                   <div className="grid gap-2.5 sm:grid-cols-2">
-                    <TextField label="Job title" value={role.role} onChange={(v) => set({ role: v })} placeholder="Junior Full Stack Developer" />
-                    <TextField label="Employer" value={role.org} onChange={(v) => set({ org: v })} placeholder="NextSoftDev" />
+                    <TextField label="Job title" value={role.role} onChange={(v) => set({ role: v })} placeholder={DEMO.experience[1]!.role} />
+                    <TextField label="Employer" value={role.org} onChange={(v) => set({ org: v })} placeholder={DEMO.experience[1]!.org} />
                   </div>
                   <TextField
                     label="Dates"
                     value={role.period}
                     onChange={(v) => set({ period: v })}
-                    placeholder="May 2025 – Nov 2025"
+                    placeholder={DEMO.experience[1]!.period}
                   />
                   <BulletEditor
                     label="What changed while you were there"
                     bullets={role.bullets}
                     onChange={(bullets) => set({ bullets })}
                     hintsFor={bulletHints}
-                    placeholder="Rebuilt the checkout flow, cutting cart abandonment from 34% to 28%"
+                    placeholder={DEMO.experience[1]!.bullets[0]}
                   />
                 </>
               )}
@@ -442,18 +437,18 @@ export function ResumeBuilder() {
               titleOf={(p) => p.name}
               render={(project, set) => (
                 <>
-                  <TextField label="Name" value={project.name} onChange={(v) => set({ name: v })} placeholder="Furnicraft" />
+                  <TextField label="Name" value={project.name} onChange={(v) => set({ name: v })} placeholder={DEMO.projects[0]!.name} />
                   <TextField
                     label="One line on what it is"
                     value={project.summary}
                     onChange={(v) => set({ summary: v })}
-                    placeholder="Multi-vendor e-commerce platform with secure payments"
+                    placeholder={DEMO.projects[0]!.summary}
                   />
                   <TextField
                     label="Built with"
                     value={project.tech}
                     onChange={(v) => set({ tech: v })}
-                    placeholder="TypeScript, GraphQL, MongoDB, Node.js"
+                    placeholder={DEMO.projects[0]!.tech}
                   />
                   <LinkRows links={project.links} onChange={(links) => set({ links })} compact />
                   <BulletEditor
@@ -488,7 +483,7 @@ export function ResumeBuilder() {
               bullets={doc.achievements}
               onChange={(achievements) => patch({ achievements })}
               hintsFor={() => []}
-              placeholder="Champion, Intra University Programming Contest 2024"
+              placeholder={DEMO.achievements[0]}
             />
           </FormSection>
 
@@ -510,17 +505,17 @@ export function ResumeBuilder() {
                     label="Qualification"
                     value={entry.degree}
                     onChange={(v) => set({ degree: v })}
-                    placeholder="BSc in Computer Science & Engineering"
+                    placeholder={DEMO.education[0]!.degree}
                   />
                   <TextField
                     label="Institution"
                     value={entry.institution}
                     onChange={(v) => set({ institution: v })}
-                    placeholder="Z. H. Sikder University of Science and Technology"
+                    placeholder={DEMO.education[0]!.institution}
                   />
                   <div className="grid gap-2.5 sm:grid-cols-2">
-                    <TextField label="Dates" value={entry.period} onChange={(v) => set({ period: v })} placeholder="2021 – 2025" />
-                    <TextField label="Result" value={entry.detail} onChange={(v) => set({ detail: v })} placeholder="CGPA 3.67 / 4.00" />
+                    <TextField label="Dates" value={entry.period} onChange={(v) => set({ period: v })} placeholder={DEMO.education[0]!.period} />
+                    <TextField label="Result" value={entry.detail} onChange={(v) => set({ detail: v })} placeholder={DEMO.education[0]!.detail} />
                   </div>
                 </>
               )}

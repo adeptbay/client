@@ -268,7 +268,7 @@ export const RESUME_CSS = `
   --link: #0b4fa8;
   width: 210mm;
   min-height: 297mm;
-  padding: 13mm 14mm;
+  padding: 10mm 12mm;
   box-sizing: border-box;
   background: #ffffff;
   color: var(--ink);
@@ -282,7 +282,7 @@ export const RESUME_CSS = `
 .cv a { color: var(--link); text-decoration: underline; }
 
 /* ── Header ── */
-.cv-head { margin-bottom: 10px; }
+.cv-head { margin-bottom: 6px; }
 .cv--classic .cv-head { text-align: center; }
 .cv--portrait .cv-head {
   display: flex;
@@ -307,16 +307,16 @@ export const RESUME_CSS = `
   line-height: 1.15;
 }
 .cv-title { margin-top: 1px; font-size: 11pt; color: var(--muted); }
-.cv-contact { margin-top: 4px; font-size: 9.4pt; color: var(--muted); }
+.cv-contact { margin-top: 3px; font-size: 9.4pt; color: var(--muted); }
 .cv-contact span + span::before { content: "  ·  "; color: #999999; }
-.cv-links { margin-top: 3px; font-size: 9.4pt; }
+.cv-links { margin-top: 2px; font-size: 9.4pt; }
 .cv-links a + a::before { content: "  |  "; color: #999999; text-decoration: none; }
 
 /* ── Sections ── */
-.cv-section { margin-top: 11px; break-inside: auto; }
+.cv-section { margin-top: 6px; break-inside: auto; }
 .cv-section > h2 {
-  margin: 0 0 5px;
-  padding-bottom: 2px;
+  margin: 0 0 3px;
+  padding-bottom: 1px;
   border-bottom: 1.4pt solid var(--rule);
   font-size: 11.5pt;
   font-weight: 700;
@@ -338,7 +338,7 @@ export const RESUME_CSS = `
 .cv-label { font-weight: 700; }
 
 .cv ul { margin: 3px 0 0; padding-left: 15px; }
-.cv li { margin-top: 1.5px; }
+.cv li { margin-top: 1px; }
 .cv-plain { list-style: none; padding-left: 0; }
 .cv-plain li { padding-left: 13px; position: relative; }
 .cv-plain li::before {
@@ -364,7 +364,7 @@ export const RESUME_CSS = `
 @page { size: A4; margin: 0; }
 @media print {
   html, body { margin: 0; padding: 0; background: #ffffff; }
-  .cv { width: auto; min-height: 0; padding: 13mm 14mm; }
+  .cv { width: auto; min-height: 0; }
   .cv a { color: var(--link); }
 }
 `;
